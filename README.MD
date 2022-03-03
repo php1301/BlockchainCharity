@@ -1,6 +1,17 @@
 # blockchain-test
 
 
+// Dựng giao diện cho giống -> Functional và hoạt động ổn 
+// -> bắt đầu làm core 
+// + Core: Smart contract, tạo campaign
+
+
++ smart contract
++ paper work
++ backend
++ Database design
++ research thêm tính năng
+
 This project was generated with [superplate](https://github.com/pankod/superplate).
 
 ## Getting Started
