@@ -6,11 +6,12 @@
 // + Core: Smart contract, tạo campaign
 
 
-+ smart contract
-+ paper work
-+ backend
-+ Database design
-+ research thêm tính năng
++ smart contract - Phúc
++ paper work - Thiện
++ backend (django) - Nhân
++ Database design - Minh
++ Frontend -  Minh, Thiện
++ research thêm tính năng - Phúc
 
 This project was generated with [superplate](https://github.com/pankod/superplate).
 
