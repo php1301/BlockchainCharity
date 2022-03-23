@@ -1,3 +1,4 @@
+import { ChevronDownIcon } from "@chakra-ui/icons";
 import { 
     Box, 
     Flex, 
@@ -5,11 +6,24 @@ import {
     useColorModeValue,
     Container, 
     Stack,
-    Button} from "@chakra-ui/react"
+    Button,
+    IconButton,
+    useColorMode,
+    Menu,
+    MenuButton,
+    MenuList,
+    MenuItem} from "@chakra-ui/react"
 import NextLink from "next/link"
+import { DarkMode } from ".."
+
+//import { useWallet } from "use-wallet";
 
 export const NavBar: React.FC = () => {
     //sua lai connect wallet
+    //const wallet = useWallet();
+
+  const { colorMode, toggleColorMode } = useColorMode();
+
     return (
         <Box>
             <Flex
@@ -80,19 +94,37 @@ export const NavBar: React.FC = () => {
                         >
                             <NextLink href="/campaign/new">Create Campaign</NextLink>
                         </Button>
-                        <Button
-                            display={{ base: "none", md: "inline-flex" }}
-                            fontSize={"md"}
-                            fontWeight={600}
-                            color={"white"}
-                            bg={"teal.400"}
-                            href={"#"}
-                            _hover={{
-                              bg: "teal.300",
-                            }}
-                        >
-                            <NextLink href="/">Conect Wallet</NextLink>
-                        </Button>
+                        {/*wallet.status === "connected"*/0 ? (
+                            <Menu>
+                                <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
+                                    {/*wallet.account.substr(0, 10) + "..."*/}
+                                </MenuButton>
+                                <MenuList>
+                                    <MenuItem /*onClick={() => wallet.reset()}*/>
+                                        {" "}
+                                        Disconnect Wallet{" "}
+                                    </MenuItem>
+                                </MenuList>
+                            </Menu>
+                        ) : (
+                            <div>
+                                <Button
+                                    display={{ base: "none", md: "inline-flex" }}
+                                    fontSize={"md"}
+                                    fontWeight={600}
+                                    color={"white"}
+                                    bg={"teal.400"}
+                                    href={"#"}
+                                    _hover={{
+                                        bg: "teal.300",
+                                    }}
+                                    //onClick={() => wallet.connect()}
+                                >
+                                    Connect Wallet{" "}
+                                </Button>
+                            </div>
+                        )}
+                        <DarkMode/>
                     </Stack>
                 </Container>
             </Flex>

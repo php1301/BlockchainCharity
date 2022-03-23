@@ -34,7 +34,32 @@ import { ExternalLinkIcon, InfoIcon } from "@chakra-ui/icons";
 import { StatCard } from "@components/statCard";
 import { getWEIPriceInUSD, getETHPriceInUSD } from "pages/api/getETHPrice";
 
+//import web3 from "../../smart-contract/web3";
+//import Campaign from "../../smart-contract/campaign";
 //Sua web3 "become a donnor", web3 "target of", web3 <Progress> form onsubmit, "Amount in Ether you want to contribute", button "contribute"
+
+/*export async function getServerSideProps({ params }) {
+    const campaignId = params.id;
+    const campaign = Campaign(campaignId);
+    const summary = await campaign.methods.getSummary().call();
+    const ETHPrice = await getETHPrice();
+  
+    return {
+      props: {
+        id: campaignId,
+        minimumContribution: summary[0],
+        balance: summary[1],
+        requestsCount: summary[2],
+        approversCount: summary[3],
+        manager: summary[4],
+        name: summary[5],
+        description: summary[6],
+        image: summary[7],
+        target: summary[8],
+        ETHPrice,
+      },
+    };
+  }*/
 
 interface propsCampaiggnSingle {
     id: any
@@ -57,14 +82,38 @@ export default function CampaignSingle(props: propsCampaiggnSingle) {
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [error, setError] = useState("");
     const [amountInUSD, setAmountInUSD] = useState();
-    //const wallet = useWallet();
-    const wallet = useState(false);
+    const wallet = useState(false); //useWallet();
     const router = useRouter();
     const { width, height } = useWindowSize();
+
+    async function onSubmit(data: any) {
+        console.log(data);
+        /*try {
+          const campaign = Campaign(id);
+          const accounts = await web3.eth.getAccounts();
+          await campaign.methods.contibute().send({
+            from: accounts[0],
+            value: web3.utils.toWei(data.value, "ether"),
+          });
+          router.push(`/campaign/${id}`);
+          setAmountInUSD(null);
+          reset("", {
+            keepValues: false,
+          });
+          setIsSubmitted(true);
+          setError(false);
+        } catch (err) {
+          setError(err.message);
+          console.log(err);
+        }*/
+      }
+
     return (
         <div>
             <Head>
                 <title>Campaign Details</title>
+                <meta name="description" content="Create a Withdrawal Request" />
+                <link rel="icon" href="/logo.svg" />
             </Head>
             {isSubmitted ? <Confetti width={width} height={height} /> : null}
             <main>
@@ -123,7 +172,13 @@ export default function CampaignSingle(props: propsCampaiggnSingle) {
                                 <SimpleGrid columns={{ base: 1 }} spacing={{ base: 5 }}>
                                     <StatCard
                                         title={"Minimum Contribution"}
-                                        stat={1010101011}
+                                        stat={/*`${web3.utils.fromWei(
+                                            minimumContribution,
+                                            "ether"
+                                        )} ETH ($${getWEIPriceInUSD(
+                                            ETHPrice,
+                                            minimumContribution
+                                        )})`*/10000}
                                         info={
                                           "You must contribute at least this much in Wei ( 1 ETH = 10 ^ 18 Wei) to become an approver"
                                         }
@@ -189,7 +244,7 @@ export default function CampaignSingle(props: propsCampaiggnSingle) {
                                         >
                                             <Text as="span" fontWeight={"bold"}>
                                             {props.balance > 0
-                                            ? "web3"//.utils.fromWei(balance, "ether")
+                                            ? ""//"web3".utils.fromWei(balance, "ether")
                                             : "0, Become a Donor 😄"}
                                             </Text>
                                             <Text
@@ -213,15 +268,14 @@ export default function CampaignSingle(props: propsCampaiggnSingle) {
                                         </Box>
 
                                         <Text fontSize={"md"} fontWeight="normal">
-                                            target of
+                                            target of {/*web3.utils.fromWei(target, "ether")*/} ETH ($
                                             {getWEIPriceInUSD(props.ETHPrice, props.target)})
                                         </Text>
                                         <Progress
                                             colorScheme="teal"
                                             size="sm"
-                                            value={100}//{web3.utils.fromWei(balance, "ether")}
-                                            max={100}//{web3.utils.fromWei(target, "ether")}
-                                            mt={4}
+                                            value={/*web3.utils.fromWei(balance, "ether")*/100}
+                                            max={/*web3.utils.fromWei(target, "ether")*/100}                                            mt={4}
                                         />
                                     </StatNumber>
                                 </Stat>
@@ -242,7 +296,7 @@ export default function CampaignSingle(props: propsCampaiggnSingle) {
                                 </Heading>
 
                                 <Box mt={10}>
-                                    <form /*onSubmit={handleSubmit(onSubmit)}*/>
+                                    <form onSubmit={handleSubmit(onSubmit)}>
                                         <FormControl id="value">
                                             <FormLabel>
                                                 Amount in Ether you want to contribute
@@ -276,7 +330,8 @@ export default function CampaignSingle(props: propsCampaiggnSingle) {
                                         ) : null}
 
                                         <Stack spacing={10}>
-                                            <Button
+                                            {/*wallet.status === "connected"*/0 ? (
+                                                <Button
                                                 fontFamily={"heading"}
                                                 mt={4}
                                                 w={"full"}
@@ -289,9 +344,17 @@ export default function CampaignSingle(props: propsCampaiggnSingle) {
                                                 isLoading={formState.isSubmitting}
                                                 isDisabled={amountInUSD ? false : true}
                                                 type="submit"
-                                            >
+                                                >
                                                 Contribute
-                                            </Button>
+                                                </Button>
+                                            ) : (
+                                                <Alert status="warning" mt={4}>
+                                                <AlertIcon />
+                                                <AlertDescription mr={2}>
+                                                    Please Connect Your Wallet to Contribute
+                                                </AlertDescription>
+                                                </Alert>
+                                            )}
                                         </Stack>
                                     </form>
                                 </Box>

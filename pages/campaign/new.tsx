@@ -23,6 +23,8 @@ import {
     Button } from "@chakra-ui/react";
 import { ArrowBackIcon } from "@chakra-ui/icons";
 import NextLinh from "next/link";
+//import factory from "../../smart-contract/factory";
+//import web3 from "../../smart-contract/web3";
 
 //sua wallet, form submit, setTargetInUSD(Math.abs(e.target.value));setMinContriInUSD(Math.abs(e.target.value))
 
@@ -37,8 +39,7 @@ export default function NewCampaign() {
 
     const router = useRouter();
     const [error, setError] = useState("");
-    //const wallet = useWallet();
-    const wallet = useState(false)
+    const wallet = useState(false); //useWallet();
     const [minContriInUSD, setMinContriInUSD] = useState();
     const [targetInUSD, setTargetInUSD] = useState();
     const [ETHPrice, setETHPrice] = useState(0);
@@ -52,10 +53,41 @@ export default function NewCampaign() {
         }
     }, []);
 
+    async function onSubmit(data: any) {
+        console.log(
+          data.minimumContribution,
+          data.campaignName,
+          data.description,
+          data.imageUrl,
+          data.target
+        );
+        /*try {
+          const accounts = await web3.eth.getAccounts();
+          await factory.methods
+            .createCampaign(
+              web3.utils.toWei(data.minimumContribution, "ether"),
+              data.campaignName,
+              data.description,
+              data.imageUrl,
+              web3.utils.toWei(data.target, "ether")
+            )
+            .send({
+              from: accounts[0],
+            });
+    
+          router.push("/");
+        } catch (err) {
+          setError(err.message);
+          console.log(err);
+        }*/
+      }
+
     return(
         <div>
             <Head>
                 <title>New Campaign</title>
+                <meta name="description" content="Create New Campaign" />
+                <link rel="icon" href="/logo.svg" />
             </Head>
             <main>
                 <Stack spacing={8} mx={"auto"} maxW={"2xl"} py={12} px={6}>
@@ -72,7 +104,7 @@ export default function NewCampaign() {
                         boxShadow={"lg"}
                         p={8}
                     >
-                        <form>
+                        <form onSubmit={handleSubmit(onSubmit)}>
                             <Stack spacing={4}>
                                 <FormControl id="minimumContribution">
                                     <FormLabel>Minimum Contribution Amount</FormLabel>
@@ -158,6 +190,7 @@ export default function NewCampaign() {
                                     </Alert>
                                 ) : null}
                                 <Stack spacing={10}>
+                                {/*wallet.status === "connected"*/0 ? (
                                     <Button
                                         bg={"teal.400"}
                                         color={"white"}
@@ -169,6 +202,26 @@ export default function NewCampaign() {
                                     >
                                         Create
                                     </Button>
+                                ) : (
+                                    <Stack spacing={3}>
+                                        <Button
+                                            color={"white"}
+                                            bg={"teal.400"}
+                                            _hover={{
+                                            bg: "teal.300",
+                                            }}
+                                            //onClick={() => wallet.connect()}
+                                        >
+                                            Connect Wallet{" "}
+                                        </Button>
+                                        <Alert status="warning">
+                                            <AlertIcon />
+                                            <AlertDescription mr={2}>
+                                                Please Connect Your Wallet First to Create a Campaign
+                                            </AlertDescription>
+                                        </Alert>
+                                    </Stack>
+                                )}
                                 </Stack>
                             </Stack>
                         </form>

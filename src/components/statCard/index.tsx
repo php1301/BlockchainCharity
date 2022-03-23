@@ -7,12 +7,6 @@ import {
     Box, 
     StatNumber} from "@chakra-ui/react";
 
-interface propsStatCard {
-    title: string;
-    stat: any;
-    info: string;
-}
-
 export const StatCard: React.FC<{
     title: string, 
     stat: any, 

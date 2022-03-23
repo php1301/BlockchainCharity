@@ -44,8 +44,8 @@ import { getWEIPriceInUSD } from "pages/api/getETHPrice";
 ////const campaign = Campaign(campaignId), /*web3.utils.fromWei(balance, "ether")*/,
 //
 
-export async function getServerSideProps({ /*params*/ }) {
-    /*const campaignId = params.id;
+/*export async function getServerSideProps({ params }) {
+    const campaignId = params.id;
     const campaign = Campaign(campaignId);
     const requestCount = await campaign.methods.getRequestsCount().call();
     const approversCount = await campaign.methods.approversCount().call();
@@ -61,8 +61,8 @@ export async function getServerSideProps({ /*params*/ }) {
         name: summary[5],
         ETHPrice,
       },
-    };*/
-  }
+    };
+  }*/
 
 export const RequestRow: React.FC<{
     id: string, 
@@ -246,13 +246,16 @@ export const RequestRow: React.FC<{
     )
 }
 
-export const Withdrawal: React.FC<{
-    campaignId: string, 
-    requestCount: any, 
-    approversCount: any, 
-    balance: any,
-    name: string,
-    ETHPrice: any }> = (props) => {
+interface withdrawalInfo {
+    campaignId: string 
+    requestCount: any 
+    approversCount: any
+    balance: any
+    name: string
+    ETHPrice: any 
+}
+
+export default function Withdrawal(props: withdrawalInfo) {
     
     const [requestsList, setRequestsList] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -299,7 +302,7 @@ export const Withdrawal: React.FC<{
                             <Text fontSize={"lg"} color={"teal.400"}>
                                 <ArrowBackIcon mr={2} />
                                 <NextLink href={`/campaign/${props.campaignId}`}>
-                                Back to Campaign
+                                    Back to Campaign
                                 </NextLink>
                             </Text>
                         </Box>
@@ -341,7 +344,7 @@ export const Withdrawal: React.FC<{
                         </Alert>
                     ) : null}
                 </Container>
-                {requestsList.length > 0 ? (
+                {/*requestsList.length*/1 > 0 ? (
                     <Container px={{ base: "4", md: "12" }} maxW={"7xl"} align={"left"}>
                         <Flex flexDirection={{ base: "column", lg: "row" }} py={4}>
                         <Box py="2" pr="2">
@@ -392,19 +395,29 @@ export const Withdrawal: React.FC<{
                                 </Tr>
                             </Thead>
                             <Tbody>
-                                {requestsList.map((request, index) => {
+                                {/*requestsList.map((request, index) => {
                                     return (
                                     <RequestRow
                                         key={index}
                                         id={index}
                                         request={request}
-                                        approversCount={props.approversCount}
-                                        campaignId={props.campaignId}
+                                        approversCount={approversCount}
+                                        campaignId={campaignId}
                                         disabled={FundNotAvailable}
-                                        ETHPrice={props.ETHPrice}
+                                        ETHPrice={ETHPrice}
                                     />
                                     );
-                                })}
+                                })*/}
+                                <RequestRow
+                                    key={1}
+                                    id={"000"}
+                                    request={9}
+                                    approversCount={2}
+                                    campaignId={"00000"}
+                                    disabled={1}
+                                    ETHPrice={100}
+                                />
+
                             </Tbody>
                             <TableCaption textAlign="left" ml="-2">
                                 Found {props.requestCount} Requests
@@ -449,7 +462,7 @@ export const Withdrawal: React.FC<{
                                 as="h4"
                                 size="md"
                             >
-                                No Requests yet for {props.name} Campaign
+                                No Requests yet for {name} Campaign
                             </Heading>
                             <Text
                                 textAlign={useBreakpointValue({ base: "center" })}
