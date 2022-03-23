@@ -13,7 +13,10 @@ interface propsStatCard {
     info: string;
 }
 
-export const StatCard: React.FC<{title: string, stat: any, info: string}> = (props) => {
+export const StatCard: React.FC<{
+    title: string, 
+    stat: any, 
+    info: string}> = (props) => {
     return (
         <Stat
             px={{ base: 2, md: 4 }}
