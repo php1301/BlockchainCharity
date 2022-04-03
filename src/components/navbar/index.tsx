@@ -45,8 +45,9 @@ export const NavBar: React.FC = () => {
                             size="lg"
                         >
                             <Box
+                            style={{fontWeight: 900}}
                                 as={"span"}
-                                color={useColorModeValue("teal.400", "teal.300")}
+                                color={useColorModeValue("green.400", "green.300")}
                                 position={"relative"}
                                 zIndex={10}
                                 _after={{
@@ -56,11 +57,11 @@ export const NavBar: React.FC = () => {
                                   bottom: 0,
                                   w: "full",
                                   h: "30%",
-                                  bg: useColorModeValue("teal.100", "teal.900"),
+                                  bg: useColorModeValue("green.100", "green.900"),
                                   zIndex: -1,
                                 }}
                             >
-                                <NextLink href="/">SupportForAll</NextLink>
+                                <NextLink href="/" >Funding🌱Healthcare</NextLink>
                             </Box>
                         </Heading>
                     </Flex>
@@ -75,7 +76,7 @@ export const NavBar: React.FC = () => {
                             fontSize={"md"}
                             fontWeight={600}
                             variant={"link"}
-                            color={useColorModeValue("teal.400", "teal.300")}
+                            color={useColorModeValue("green.400", "green.300")}
                             display={{ base: "none", md: "inline-flex" }}
                         >
                             <NextLink href="/campaign/new">Create Campaign</NextLink>
@@ -85,13 +86,13 @@ export const NavBar: React.FC = () => {
                             fontSize={"md"}
                             fontWeight={600}
                             color={"white"}
-                            bg={"teal.400"}
+                            bg={"green.400"}
                             href={"#"}
                             _hover={{
-                              bg: "teal.300",
+                              bg: "green.500",
                             }}
                         >
-                            <NextLink href="/">Conect Wallet</NextLink>
+                            <NextLink href="/">Connect Wallet</NextLink>
                         </Button>
                     </Stack>
                 </Container>

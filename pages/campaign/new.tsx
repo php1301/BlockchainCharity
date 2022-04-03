@@ -59,7 +59,7 @@ export default function NewCampaign() {
             </Head>
             <main>
                 <Stack spacing={8} mx={"auto"} maxW={"2xl"} py={12} px={6}>
-                    <Text fontSize={"lg"} color={"teal.400"}>
+                    <Text fontSize={"lg"} color={"green.400"}>
                         <ArrowBackIcon mr={2}/>
                         <NextLinh href="/">Back to Home</NextLinh>
                     </Text>
@@ -159,10 +159,10 @@ export default function NewCampaign() {
                                 ) : null}
                                 <Stack spacing={10}>
                                     <Button
-                                        bg={"teal.400"}
+                                        bg={"green.400"}
                                         color={"white"}
                                         _hover={{
-                                            bg: "teal.500",
+                                            bg: "green.500",
                                         }}
                                         isLoading={isSubmitting}
                                         type="submit"
