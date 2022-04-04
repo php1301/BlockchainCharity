@@ -31,7 +31,7 @@ import { getETHPriceInUSD } from "pages/api/getETHPrice";
 
 //sửa useAsync, async function onSubmit, 
 
-export const NewWithdrawal: React.FC<{}> = () => {
+export default function NewWithdrawal() {
     const router = useRouter();
     const { id } = router.query;
     const {
@@ -44,7 +44,7 @@ export const NewWithdrawal: React.FC<{}> = () => {
     const [error, setError] = useState("");
     const [inUSD, setInUSD] = useState();
     const [ETHPrice, setETHPrice] = useState(0);
-    const wallet = useWallet();
+    //const wallet = useWallet();
 
     useAsync(async () => {
         /*try {
@@ -161,7 +161,7 @@ export const NewWithdrawal: React.FC<{}> = () => {
                                 </Alert>
                             ) : null}
                             <Stack spacing={10}>
-                                {wallet.status === "connected" ? (
+                                {/*wallet.status === "connected"*/0 ? (
                                     <Button
                                         bg={"teal.400"}
                                         color={"white"}
