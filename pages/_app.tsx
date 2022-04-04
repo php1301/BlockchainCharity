@@ -4,6 +4,8 @@ import "@styles/global.css";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { ChakraProvider, extendTheme } from "@chakra-ui/react";
 import { NavBar } from "@components/navbar";
+import Footer from "@components/footer/index.spec";
+import "@fontsource/space-grotesk";
 
 const theme = extendTheme({
     fonts: {
@@ -19,6 +21,7 @@ function MyApp({ Component, pageProps }: AppProps): JSX.Element {
             <ChakraProvider theme={theme}>
                 <NavBar/>
                 <Component {...pageProps}/>
+                <Footer/>
             </ChakraProvider>
         </>
     );
