@@ -122,8 +122,8 @@ export default function CampaignSingle(props: propsCampaiggnSingle) {
                     {isSubmitted ? (
                         <Container
                             maxW={"7xl"}
-                            columns={{ base: 1, md: 2 }}
-                            spacing={{ base: 10, lg: 32 }}
+                            //columns={{ base: 1, md: 2 }}
+                            //spacing={{ base: 10, lg: 32 }}
                             py={{ base: 6 }}
                         >
                             <Alert status="success" mt="2">
@@ -214,7 +214,7 @@ export default function CampaignSingle(props: propsCampaiggnSingle) {
                                     boxShadow={"lg"}
                                     rounded={"xl"}
                                     p={{ base: 4, sm: 6, md: 8 }}
-                                    spacing={{ base: 8 }}
+                                    //spacing={{ base: 8 }}
                                 >
                                     <StatLabel fontWeight={"medium"}>
                                         <Text as="span" isTruncated mr={2}>

@@ -15,7 +15,7 @@ import { QueryClient, QueryClientProvider } from "react-query";
  * please visit https://testing-library.com/docs/react-testing-library/setup
  */
 
-export const AllTheProviders = ({ children }) => {
+/*export const AllTheProviders = ({ children }) => {
     const queryClient = new QueryClient();
 
     return (
@@ -34,4 +34,4 @@ const render = (ui: ReactElement, options?: Omit<RenderOptions, "queries">) =>
 export * from "@testing-library/react";
 
 // override render method
-export { render };
+export { render };*/

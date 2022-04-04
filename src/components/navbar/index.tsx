@@ -115,7 +115,7 @@ export const NavBar: React.FC = () => {
                                     fontWeight={600}
                                     color={"white"}
                                     bg={"teal.400"}
-                                    href={"#"}
+                                    //href={"#"}
                                     _hover={{
                                         bg: "teal.300",
                                     }}

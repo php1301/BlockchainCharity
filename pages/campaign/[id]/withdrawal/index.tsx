@@ -296,7 +296,7 @@ export default function Withdrawal(props: withdrawalInfo) {
             </Head>
             
             <main>
-                <Container px={{ base: "4", md: "12" }} maxW={"7xl"} align={"left"}>
+                <Container px={{ base: "4", md: "12" }} maxW={"7xl"} /*align={"left"}*/>
                     <Flex flexDirection={{ base: "column", md: "row" }} py={4}>
                         <Box py="4">
                             <Text fontSize={"lg"} color={"teal.400"}>
@@ -345,7 +345,7 @@ export default function Withdrawal(props: withdrawalInfo) {
                     ) : null}
                 </Container>
                 {/*requestsList.length*/1 > 0 ? (
-                    <Container px={{ base: "4", md: "12" }} maxW={"7xl"} align={"left"}>
+                    <Container px={{ base: "4", md: "12" }} maxW={"7xl"} /*align={"left"}*/>
                         <Flex flexDirection={{ base: "column", lg: "row" }} py={4}>
                         <Box py="2" pr="2">
                             <Heading
@@ -364,12 +364,12 @@ export default function Withdrawal(props: withdrawalInfo) {
                             <NextLink href={`/campaign/${props.campaignId}/withdrawal/new`}>
                                 <Button
                                     display={{ sm: "inline-flex" }}
-                                    justify={"flex-end"}
+                                    //justify={"flex-end"}
                                     fontSize={"md"}
                                     fontWeight={600}
                                     color={"white"}
                                     bg={"teal.400"}
-                                    href={"#"}
+                                    //href={"#"}
                                     _hover={{
                                     bg: "teal.300",
                                     }}
@@ -430,10 +430,10 @@ export default function Withdrawal(props: withdrawalInfo) {
                         <Container
                             px={{ base: "4", md: "12" }}
                             maxW={"7xl"}
-                            align={"left"}
+                            //align={"left"}
                             display={isLoading ? "block" : "none"}
                         >
-                            <SimpleGrid rows={{ base: 3 }} spacing={2}>
+                            <SimpleGrid /*rows={{ base: 3 }}*/ spacing={2}>
                                 <Skeleton height="2rem" />
                                 <Skeleton height="5rem" />
                                 <Skeleton height="5rem" />
@@ -442,12 +442,12 @@ export default function Withdrawal(props: withdrawalInfo) {
                         </Container>
                         <Container
                             maxW={"lg"}
-                            align={"center"}
+                            //align={"center"}
                             display={
                               requestsList.length === 0 && !isLoading ? "block" : "none"
                             }
                         >
-                            <SimpleGrid row spacing={2} align="center">
+                            <SimpleGrid /*row spacing={2} align="center"*/>
                             <Stack align="center">
                                 <NextImage
                                     src="/static/no-requests.png"

@@ -234,11 +234,11 @@ export default function Home({/*campaign*/ }) {
         />
         <link rel="icon" href="/logo.svg" />
         <link rel="preconnect" href="https://fonts.googleapis.com"></link>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin></link>
+<link rel="preconnect" href="https://fonts.gstatic.com" /*crossorigin*/></link>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet"></link>
       </Head>
       <main className={styles.main}>
-        <Container py={{ base: "4", md: "12" }} maxW={"7xl"} align={"left"}>
+        <Container py={{ base: "4", md: "12" }} maxW={"7xl"} /*align={"left"}*/>
           {" "}
           <Heading
             textAlign={useBreakpointValue({ base: "left" })}
