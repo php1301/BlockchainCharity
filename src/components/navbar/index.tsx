@@ -1,10 +1,10 @@
 import { ChevronDownIcon } from "@chakra-ui/icons";
-import { 
-    Box, 
-    Flex, 
-    Heading, 
+import {
+    Box,
+    Flex,
+    Heading,
     useColorModeValue,
-    Container, 
+    Container,
     Stack,
     Button,
     IconButton,
@@ -12,22 +12,24 @@ import {
     Menu,
     MenuButton,
     MenuList,
-    MenuItem} from "@chakra-ui/react"
-import NextLink from "next/link"
-import { DarkMode } from ".."
+    MenuItem,
+} from "@chakra-ui/react";
+import NextLink from "next/link";
+import { useWallet } from "use-wallet";
+import { DarkMode } from "..";
 
 //import { useWallet } from "use-wallet";
 
 export const NavBar: React.FC = () => {
     //sua lai connect wallet
-    //const wallet = useWallet();
+    const wallet = useWallet();
 
-  const { colorMode, toggleColorMode } = useColorMode();
+    const { colorMode, toggleColorMode } = useColorMode();
 
     return (
         <Box>
             <Flex
-                color={useColorModeValue("gray.600", "white")}  
+                color={useColorModeValue("gray.600", "white")}
                 py={{ base: 2 }}
                 px={{ base: 4 }}
                 borderBottom={1}
@@ -42,15 +44,19 @@ export const NavBar: React.FC = () => {
                 zIndex="999"
                 justify={"center"}
                 css={{
-                backdropFilter: "saturate(180%) blur(5px)",
-                backgroundColor: useColorModeValue(
-                    "rgba(255, 255, 255, 0.8)",
-                    "rgba(26, 32, 44, 0.8)"
-                ),
-                }}  
+                    backdropFilter: "saturate(180%) blur(5px)",
+                    backgroundColor: useColorModeValue(
+                        "rgba(255, 255, 255, 0.8)",
+                        "rgba(26, 32, 44, 0.8)",
+                    ),
+                }}
             >
                 <Container as={Flex} maxW={"7xl"} align={"center"}>
-                    <Flex flex={{ base: 1 }} justify="start" ml={{ base: -2, md: 0 }}>
+                    <Flex
+                        flex={{ base: 1 }}
+                        justify="start"
+                        ml={{ base: -2, md: 0 }}
+                    >
                         <Heading
                             textAlign="left"
                             fontFamily={"heading"}
@@ -59,23 +65,31 @@ export const NavBar: React.FC = () => {
                             size="lg"
                         >
                             <Box
-                            style={{fontWeight: 900}}
+                                style={{ fontWeight: 900 }}
                                 as={"span"}
-                                color={useColorModeValue("green.400", "green.300")}
+                                color={useColorModeValue(
+                                    "green.400",
+                                    "green.300",
+                                )}
                                 position={"relative"}
                                 zIndex={10}
                                 _after={{
-                                  content: '""',
-                                  position: "absolute",
-                                  left: 0,
-                                  bottom: 0,
-                                  w: "full",
-                                  h: "30%",
-                                  bg: useColorModeValue("green.100", "green.900"),
-                                  zIndex: -1,
+                                    content: '""',
+                                    position: "absolute",
+                                    left: 0,
+                                    bottom: 0,
+                                    w: "full",
+                                    h: "30%",
+                                    bg: useColorModeValue(
+                                        "green.100",
+                                        "green.900",
+                                    ),
+                                    zIndex: -1,
                                 }}
                             >
-                                <NextLink href="/" >Funding🌱Healthcare</NextLink>
+                                <NextLink href="/">
+                                    Funding🌱Healthcare
+                                </NextLink>
                             </Box>
                         </Heading>
                     </Flex>
@@ -93,15 +107,20 @@ export const NavBar: React.FC = () => {
                             color={useColorModeValue("green.400", "green.300")}
                             display={{ base: "none", md: "inline-flex" }}
                         >
-                            <NextLink href="/campaign/new">Create Campaign</NextLink>
+                            <NextLink href="/campaign/new">
+                                Create Campaign
+                            </NextLink>
                         </Button>
-                        {/*wallet.status === "connected"*/0 ? (
+                        {wallet.status === "connected" ? (
                             <Menu>
-                                <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
-                                    {/*wallet.account.substr(0, 10) + "..."*/}
+                                <MenuButton
+                                    as={Button}
+                                    rightIcon={<ChevronDownIcon />}
+                                >
+                                    {wallet?.account?.slice(0, 10) + "..."}
                                 </MenuButton>
                                 <MenuList>
-                                    <MenuItem /*onClick={() => wallet.reset()}*/>
+                                    <MenuItem onClick={() => wallet.reset()}>
                                         {" "}
                                         Disconnect Wallet{" "}
                                     </MenuItem>
@@ -110,7 +129,10 @@ export const NavBar: React.FC = () => {
                         ) : (
                             <div>
                                 <Button
-                                    display={{ base: "none", md: "inline-flex" }}
+                                    display={{
+                                        base: "none",
+                                        md: "inline-flex",
+                                    }}
                                     fontSize={"md"}
                                     fontWeight={600}
                                     color={"white"}
@@ -119,16 +141,16 @@ export const NavBar: React.FC = () => {
                                     _hover={{
                                         bg: "teal.300",
                                     }}
-                                    //onClick={() => wallet.connect()}
+                                    onClick={() => wallet.connect("injected")}
                                 >
                                     Connect Wallet{" "}
                                 </Button>
                             </div>
                         )}
-                        <DarkMode/>
+                        <DarkMode />
                     </Stack>
                 </Container>
             </Flex>
         </Box>
-    )
-}
+    );
+};
