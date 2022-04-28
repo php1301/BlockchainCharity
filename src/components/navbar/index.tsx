@@ -14,18 +14,89 @@ import {
     MenuList,
     MenuItem,
 } from "@chakra-ui/react";
+import { getAuth, signInWithCustomToken, signOut } from "firebase/auth";
 import NextLink from "next/link";
 import { useWallet } from "use-wallet";
 import { DarkMode } from "..";
-
+import { ethers } from "ethers";
+import { toHex } from "@libs/to-hex";
+import { firebaseClient } from "src/firebase";
+import axiosClient from "src/framework/axios";
+import { useEffect, useState } from "react";
 //import { useWallet } from "use-wallet";
 
 export const NavBar: React.FC = () => {
     //sua lai connect wallet
     const wallet = useWallet();
-
+    const baseUrl = "http://localhost:3000/dev";
     const { colorMode, toggleColorMode } = useColorMode();
-
+    const [userAuth, setUserAuth] = useState<{ uid: string; [x: string]: any }>(
+        { uid: "" },
+    );
+    const syncWallet = async () => {
+        const provider = new ethers.providers.Web3Provider(
+            (window as any)?.ethereum,
+        );
+        await provider.send("eth_requestAccounts", []);
+        const signer = provider.getSigner();
+        const walletAddr = await signer.getAddress();
+        console.log(walletAddr);
+        let response = await axiosClient.post(
+            `${baseUrl}/auth/nonce`,
+            {
+                walletAddr,
+            },
+            {
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            },
+        );
+        const { nonce } = response;
+        const hexedNonce = toHex(nonce);
+        const signature = await signer.signMessage(hexedNonce);
+        console.log(`signature`, signature);
+        response = await axiosClient.post(
+            `${baseUrl}/auth/wallet`,
+            {
+                walletAddr,
+                nonce: hexedNonce,
+                signature,
+            },
+            {
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            },
+        );
+        const { token, userDoc } = response;
+        const auth = getAuth(firebaseClient);
+        await signInWithCustomToken(auth, token);
+        const user = auth.currentUser;
+        await user?.reload();
+        console.log(user);
+        await wallet.connect("injected");
+    };
+    const signOutWallet = async () => {
+        const auth = getAuth();
+        signOut(auth);
+        wallet.reset();
+    };
+    useEffect(() => {
+        const authenticateUser = async () => {
+            const auth = getAuth(firebaseClient);
+            console.log(auth);
+            auth.onAuthStateChanged(async (user) => {
+                console.log(user);
+                if (user) {
+                    setUserAuth({ ...user });
+                } else {
+                    setUserAuth({ uid: "" });
+                }
+            });
+        };
+        authenticateUser();
+    }, []);
     return (
         <Box>
             <Flex
@@ -111,16 +182,16 @@ export const NavBar: React.FC = () => {
                                 Create Campaign
                             </NextLink>
                         </Button>
-                        {wallet.status === "connected" ? (
+                        {wallet.status === "connected" || userAuth?.uid ? (
                             <Menu>
                                 <MenuButton
                                     as={Button}
                                     rightIcon={<ChevronDownIcon />}
                                 >
-                                    {wallet?.account?.slice(0, 10) + "..."}
+                                    {userAuth?.uid?.slice(0, 10) + "..."}
                                 </MenuButton>
                                 <MenuList>
-                                    <MenuItem onClick={() => wallet.reset()}>
+                                    <MenuItem onClick={signOutWallet}>
                                         {" "}
                                         Disconnect Wallet{" "}
                                     </MenuItem>
@@ -141,7 +212,8 @@ export const NavBar: React.FC = () => {
                                     _hover={{
                                         bg: "teal.300",
                                     }}
-                                    onClick={() => wallet.connect("injected")}
+                                    // onClick={() => wallet.connect("injected")}
+                                    onClick={syncWallet}
                                 >
                                     Connect Wallet{" "}
                                 </Button>

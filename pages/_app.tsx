@@ -26,6 +26,7 @@ function MyApp({ Component, pageProps }: AppProps): JSX.Element {
                         walletconnect: {
                             rpcUrl: "https://rinkeby.infura.io/v3/08ac79d88b5d4aea961ca36af7ea6ee7",
                         },
+                        // injected: true,
                     }}
                 >
                     <NavBar />

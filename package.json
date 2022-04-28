@@ -3,7 +3,7 @@
     "version": "0.1.0",
     "private": true,
     "scripts": {
-        "dev": "next dev",
+        "dev": "next dev -p 3001",
         "build": "next build",
         "start": "next start",
         "clean": "rimraf \"{.next,dist,build,out}\"",
@@ -29,6 +29,8 @@
         "@tailwindcss/forms": "^0.5.0",
         "axios": "^0.26.1",
         "dotenv": "^8.2.0",
+        "ethers": "^5.6.4",
+        "firebase": "^9.6.11",
         "framer-motion": "^6",
         "fs-extra": "^10.0.0",
         "ganache-cli": "^6.12.2",
