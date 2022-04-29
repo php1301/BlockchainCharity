@@ -29,7 +29,14 @@ import {
     Input,
     InputRightAddon,
     FormHelperText,
-    Button } from "@chakra-ui/react";
+    Button,
+    HStack,
+    SkeletonCircle,
+    Divider,
+    Skeleton,
+    Img,
+    Flex,
+ } from "@chakra-ui/react";
 import { ExternalLinkIcon, InfoIcon } from "@chakra-ui/icons";
 import { StatCard } from "@components/statCard";
 import { getWEIPriceInUSD, getETHPriceInUSD } from "pages/api/getETHPrice";
@@ -75,6 +82,83 @@ interface propsCampaiggnSingle {
     ETHPrice: any
 }
 
+const CampaignCard: React.FC<{
+    name: string;
+    date: string;
+    description: string;
+}> = (props) => {
+    return (
+        <Tooltip 
+            label={props.name +": "+ props.description}
+            bg={useColorModeValue("white", "gray.700")}
+            placement={"top"}
+            color={useColorModeValue("gray.800", "white")}
+            fontSize={"1em"}
+        >
+            <Box
+                bg={useColorModeValue("white", "gray.800")}
+                maxW={{ md: "sm" }}
+                borderWidth="1px"
+                rounded="lg"
+                shadow="lg"
+                position="relative"
+                alignItems="center"
+                justifyContent="center"
+                transition={"transform 0.3s ease"}
+                _hover={{
+                    transform: "translateY(-8px)",
+                }}
+            >
+                <Box p="6">
+                    <Flex
+                        mt="1"
+                        justifyContent="space-between"
+                        alignContent="center"
+                    >
+                        <Box
+                            fontSize="2xl"
+                            fontWeight="semibold"
+                            as="h4"
+                            lineHeight="tight"
+                            isTruncated
+                        >
+                            {props.name}
+                        </Box>
+
+                    </Flex>
+                    <Flex alignContent="center" >
+                        <Heading size="base" isTruncated>
+                            on: {props.date}
+                        </Heading>
+                    </Flex>
+                    <Flex direction="row" py={2}>
+                        <Box w="full">
+                            <Box
+                                fontSize={"2xl"}
+                                isTruncated
+                                maxW={{ base: "	15rem", sm: "sm" }}
+                            >
+                                <Text
+                                    as="span"
+                                    fontSize="lg"
+                                    display="inline"
+                                    fontWeight={"normal"}
+                                    color={useColorModeValue(
+                                        "gray.500",
+                                        "gray.200",
+                                    )}
+                                >
+                                    {props.description}
+                                </Text>
+                            </Box>
+                        </Box>{" "}
+                    </Flex>
+                </Box>
+            </Box>
+        </Tooltip>
+    );
+};
+
 export default function CampaignSingle(props: propsCampaiggnSingle) {
     const { handleSubmit, register, formState, reset, getValues } = useForm({
         mode: "onChange",
@@ -85,6 +169,11 @@ export default function CampaignSingle(props: propsCampaiggnSingle) {
     const wallet = useState(false); //useWallet();
     const router = useRouter();
     const { width, height } = useWindowSize();
+    const [roadmaps, setRoadmaps] = useState([
+        {name: 'Buy food', date: '1/1/2022', description: 'so we need to buy some food for the children who does not have any food'},
+        {name: 'Buy food', date: '1/1/2022', description: 'so we need to buy some food for the children who does not have any food'},
+        {name: 'Buy food', date: '1/1/2022', description: 'so we need to buy some food for the children who does not have any food'},
+    ])
 
     async function onSubmit(data: any) {
         console.log(data);
@@ -146,7 +235,7 @@ export default function CampaignSingle(props: propsCampaiggnSingle) {
                         maxW={"7xl"}
                         columns={{ base: 1, md: 2 }}
                         spacing={{ base: 10, lg: 32 }}
-                        py={{ base: 6 }}
+                        //py={{ base: 6 }}
                     >
                         <Stack spacing={{ base: 6 }}>
                             <Heading
@@ -205,6 +294,45 @@ export default function CampaignSingle(props: propsCampaiggnSingle) {
                                         }
                                     />
                                 </SimpleGrid>
+                                <Container py={{ base: "4", md: "12" }} maxW={"7xl"}>
+                                <HStack spacing={2}>
+                                    <SkeletonCircle size="4" />
+                                    <Heading as="h2" size="lg">
+                                        Roadmap
+                                    </Heading>
+                                </HStack>
+
+                                <Divider marginTop="4" />
+
+                                {roadmaps.length > 0 ? (
+                                    <SimpleGrid
+                                        columns={{ base: 1, md: 2 }}
+                                        spacing={10}
+                                        py={8}
+                                    >
+                                        {roadmaps.map((el, i) => {
+                                            return (
+                                                <div key={i}>
+                                                    <CampaignCard
+                                                        name={el.name}
+                                                        date={el.date}
+                                                        description={el.description}
+                                                    />
+                                                </div>
+                                            );
+                                        })}
+                                    </SimpleGrid>
+                                ) : (
+                                    <SimpleGrid
+                                        columns={{ base: 1, md: 2 }}
+                                        spacing={10}
+                                        py={8}
+                                    >
+                                        <Skeleton height="25rem" />
+                                        <Skeleton height="25rem" />
+                                    </SimpleGrid>
+                                )}
+                            </Container>
                             </Box>
                         </Stack>
                         <Stack spacing={{ base: 4 }}>
