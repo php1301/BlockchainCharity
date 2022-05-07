@@ -21,28 +21,27 @@ import {
     Icon,
     chakra,
     Tooltip,
-    Link,
     SkeletonCircle,
     HStack,
     Stack,
     Progress,
 } from "@chakra-ui/react";
 
-//import factory from "../smart-contract/factory";
-//import web3 from "../smart-contract/web3";
-//import Campaign from "../smart-contract/campaign";
-import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { FaHandshake } from "react-icons/fa";
 import { FcShare, FcDonate, FcMoneyTransfer } from "react-icons/fc";
+import axiosClient from "src/framework/axios";
+import { getETHPrice, getWEIPriceInUSD } from "@libs/get-eth-price";
+import web3 from "@libs/web3";
 
-// export async function getServerSideProps(context) {
-// const campaigns = await factory.methods.getDeployedCampaigns().call();
-//   console.log(campaigns);
-
-//   return {
-//     props: { campaigns },
-//   };
-// }
+export async function getServerSideProps() {
+    const { list: deployedCampaigns }: any = await axiosClient.get(
+        "/campaigns/get-deployed-campaigns",
+    );
+    console.log(deployedCampaigns);
+    return {
+        props: { campaigns: deployedCampaigns || [] },
+    };
+}
 
 export const Feature: React.FC<{ title: string; text: string; icon: any }> = (
     props,
@@ -160,9 +159,12 @@ export const CampaignCard: React.FC<{
                                 pt="2"
                             >
                                 <Text as="span" fontWeight={"bold"}>
-                                    {/* {props.balance > 0
-                    ? web3.utils.fromWei(props.balance, "ether")
-                    : "0, Become a Donor 😄"} */}
+                                    {props.balance > 0
+                                        ? web3.utils.fromWei(
+                                              props.balance,
+                                              "ether",
+                                          )
+                                        : "0, Become a Donor 😄"}
                                 </Text>
                                 <Text
                                     as="span"
@@ -187,19 +189,31 @@ export const CampaignCard: React.FC<{
                                         "gray.200",
                                     )}
                                 >
-                                    {/* (${getWEIPriceInUSD(ethPrice, balance)}) */}
+                                    ($
+                                    {getWEIPriceInUSD(
+                                        props.ethPrice,
+                                        props.balance,
+                                    )}
+                                    )
                                 </Text>
                             </Box>
 
                             <Text fontSize={"md"} fontWeight="normal">
-                                {/* target of {web3.utils.fromWei(target, "ether")} ETH ($
-                {getWEIPriceInUSD(ethPrice, target)}) */}
+                                target of{" "}
+                                {web3.utils.fromWei(props.target, "ether")} ETH
+                                ($
+                                {getWEIPriceInUSD(props.ethPrice, props.target)}
+                                )
                             </Text>
                             <Progress
                                 colorScheme="teal"
                                 size="sm"
-                                // value={web3.utils.fromWei(balance, "ether")}
-                                // max={web3.utils.fromWei(target, "ether")}
+                                value={parseFloat(
+                                    web3.utils.fromWei(props.balance, "ether"),
+                                )}
+                                max={parseFloat(
+                                    web3.utils.fromWei(props.target, "ether"),
+                                )}
                                 mt="2"
                             />
                         </Box>{" "}
@@ -210,29 +224,29 @@ export const CampaignCard: React.FC<{
     );
 };
 
-export default function Home(
-    {
-        /*campaign*/
-    },
-) {
-    const [campaignList, setCampaignList] = useState([]);
-    const [ethPrice, updateEthPrice] = useState(null);
+export default function Home({ campaigns }: { campaigns: any }) {
+    const [campaignList, setCampaignList] = useState<any>([]);
+    const [ethPrice, updateEthPrice] = useState<any>(null);
 
     async function getSummary() {
-        // try {
-        //   const summary = await Promise.all(
-        //     campaigns.map((campaign, i) =>
-        //       Campaign(campaigns[i]).methods.getSummary().call()
-        //     )
-        //   );
-        //   const ETHPrice = await getETHPrice();
-        //   updateEthPrice(ETHPrice);
-        //   console.log("summary ", summary);
-        //   setCampaignList(summary);
-        //   return summary;
-        // } catch (e) {
-        //   console.log(e);
-        // }
+        try {
+            const summary = await Promise.all(
+                campaigns.map(async (campaign: any, i: any) => {
+                    const { summary }: any = await axiosClient.get(
+                        `/campaigns/get-campaign-summary/${campaigns[i]}`,
+                    );
+                    return summary;
+                }),
+            );
+            console.log(summary);
+            const ETHPrice = await getETHPrice();
+            updateEthPrice(ETHPrice);
+            console.log("summary ", summary);
+            setCampaignList(summary);
+            return summary;
+        } catch (e) {
+            console.log(e);
+        }
     }
     useEffect(() => {
         const providerCheck = async () => {
@@ -249,7 +263,7 @@ export default function Home(
     useEffect(() => {
         getSummary();
     }, []);
-
+    console.log(campaignList);
     return (
         <div>
             <Head>
@@ -321,7 +335,7 @@ export default function Home(
                             spacing={10}
                             py={8}
                         >
-                            {campaignList.map((el, i) => {
+                            {campaignList.map((el: any, i: any) => {
                                 return (
                                     <div key={i}>
                                         <CampaignCard
@@ -329,8 +343,8 @@ export default function Home(
                                             description={el[6]}
                                             creatorId={el[4]}
                                             imageURL={el[7]}
-                                            id={/*campaigns[i]*/ 0}
-                                            target={el[8]}
+                                            id={campaigns[i]}
+                                            target={el[10]}
                                             balance={el[1]}
                                             ethPrice={ethPrice}
                                         />
