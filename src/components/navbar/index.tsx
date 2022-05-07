@@ -1,4 +1,4 @@
-import { ChevronDownIcon } from "@chakra-ui/icons";
+import { ChevronDownIcon, CloseIcon, HamburgerIcon } from "@chakra-ui/icons";
 import {
     Box,
     Flex,
@@ -33,6 +33,8 @@ export const NavBar: React.FC = () => {
     const [userAuth, setUserAuth] = useState<{ uid: string; [x: string]: any }>(
         { uid: "" },
     );
+    const [display, changeDisplay] = useState('none')
+
     const syncWallet = async () => {
         const provider = new ethers.providers.Web3Provider(
             (window as any)?.ethereum,
@@ -169,7 +171,7 @@ export const NavBar: React.FC = () => {
                         justify={"flex-end"}
                         direction={"row"}
                         spacing={6}
-                        display={{ base: "none", md: "flex" }}
+                        display={{ base: "flex", md: "flex" }}
                     >
                         <Button
                             fontSize={"md"}
@@ -180,6 +182,17 @@ export const NavBar: React.FC = () => {
                         >
                             <NextLink href="/user">
                                 Profile
+                            </NextLink>
+                        </Button>
+                        <Button
+                            fontSize={"md"}
+                            fontWeight={600}
+                            variant={"link"}
+                            color={useColorModeValue("green.400", "green.300")}
+                            display={{ base: "none", md: "inline-flex" }}
+                        >
+                            <NextLink href="/campaign/new">
+                                Create Campaign
                             </NextLink>
                         </Button>
                         {wallet.status === "connected" || userAuth?.uid ? (
@@ -220,6 +233,117 @@ export const NavBar: React.FC = () => {
                             </div>
                         )}
                         <DarkMode />
+                        <IconButton
+                            aria-label="open Menu"
+                            size="lg"
+                            //mr={2}
+                            icon={<HamburgerIcon/>}
+                            display={{ base: "flex", md: "none" }}
+                            onClick={() => changeDisplay('flex')}
+                        />
+                        <Flex
+                            //w="100vw"
+                            w={{ md: "lg", base: "lg" }}
+                            bgColor={useColorModeValue(
+                                "rgba(255, 255, 255, 1)",
+                                "rgba(26, 32, 44, 1)",
+                            )}
+                            zIndex={20}
+                            h="100vh"
+                            pos="fixed"
+                            top="0"
+                            //left="0"
+                            right="0"
+                            overflowY="auto"
+                            flexDir="column"
+                            display={{ base:display, md: "none" }}
+                            shadow="lg"
+                        >
+                            <Flex justify="flex-end">
+                                <IconButton
+                                    aria-label="Close Menu"
+                                    //mt={2}
+                                    //mr={2}
+                                    size="lg"
+                                    icon={<CloseIcon/>}      
+                                    onClick={() => changeDisplay('none')}
+                                />
+                            </Flex>
+                            <Stack
+                                flex={{ base: 1, md: 0 }}
+                                //justify={"flex-end"}
+                                direction={"column"}
+                                spacing={6}
+                                display={{ base: "flex", md: "flex" }}
+                                align="center"
+                            >
+                                <Button
+                                    fontSize={"md"}
+                                    fontWeight={600}
+                                    variant={"link"}
+                                    color={useColorModeValue("green.400", "green.300")}
+                                    onClick={() => changeDisplay('none')}
+                                    display={{ base: "inline-flex", md: "none" }}
+                                >
+                                    <NextLink href="/user">
+                                        Profile
+                                    </NextLink>
+                                </Button>
+                                <Button
+                                    fontSize={"md"}
+                                    fontWeight={600}
+                                    variant={"link"}
+                                    color={useColorModeValue("green.400", "green.300")}
+                                    display={{ base: "inline-flex", md: "none" }}
+                                    onClick={() => changeDisplay('none')}
+                                >
+                                    <NextLink href="/campaign/new">
+                                        Create Campaign
+                                    </NextLink>
+                                </Button>
+                                {wallet.status === "connected" || userAuth?.uid ? (
+                                    <Menu>
+                                        <MenuButton
+                                            as={Button}
+                                            rightIcon={<ChevronDownIcon />}
+                                        >
+                                            {userAuth?.uid?.slice(0, 10) + "..."}
+                                        </MenuButton>
+                                        <MenuList>
+                                            <MenuItem onClick={signOutWallet}>
+                                                {" "}
+                                                Disconnect Wallet{" "}
+                                            </MenuItem>
+                                        </MenuList>
+                                    </Menu>
+                                ) : (
+                                    <div>
+                                        <Button
+                                            display={{
+                                                base: "inline-flex",
+                                                md: "none",
+                                            }}
+                                            fontSize={"md"}
+                                            fontWeight={600}
+                                            color={"white"}
+                                            bg={"teal.400"}
+                                            //href={"#"}
+                                            _hover={{
+                                                bg: "teal.300",
+                                            }}
+                                            // onClick={() => wallet.connect("injected")}
+                                            //onClick={syncWallet}
+                                            onClick={() => {
+                                                //changeDisplay('none')
+                                                syncWallet
+                                            }}
+                                        >
+                                            Connect Wallet{" "}
+                                        </Button>
+                                    </div>
+                                )}
+                            </Stack>
+                        </Flex>
                     </Stack>
                 </Container>
             </Flex>

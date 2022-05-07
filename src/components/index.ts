@@ -6,3 +6,4 @@ export { Footer } from "./footer";
 export { NavBar } from "./navbar";
 export { StatCard } from "./statCard";
 export { DarkMode } from "./darkMode";
+export { ComboBox } from "./comboBox";
