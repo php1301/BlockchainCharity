@@ -7,28 +7,23 @@ import {
     Container,
     Stack,
     Button,
-    IconButton,
     useColorMode,
     Menu,
     MenuButton,
     MenuList,
     MenuItem,
 } from "@chakra-ui/react";
-import { getAuth, signInWithCustomToken, signOut } from "firebase/auth";
+import { getAuth, signOut } from "firebase/auth";
 import NextLink from "next/link";
 import { useWallet } from "use-wallet";
 import { DarkMode } from "..";
-import { ethers } from "ethers";
-import { toHex } from "@libs/to-hex";
 import { firebaseClient } from "src/firebase";
-import axiosClient from "src/framework/axios";
 import { useEffect, useState } from "react";
-//import { useWallet } from "use-wallet";
+import { syncWallet } from "@libs/sync-wallet";
 
 export const NavBar: React.FC = () => {
     //sua lai connect wallet
     const wallet = useWallet();
-    const baseUrl = "http://localhost:3000/dev";
     const { colorMode, toggleColorMode } = useColorMode();
     const [userAuth, setUserAuth] = useState<{ uid: string; [x: string]: any }>(
         { uid: "" },
@@ -226,7 +221,7 @@ export const NavBar: React.FC = () => {
                                         bg: "green.300",
                                     }}
                                     // onClick={() => wallet.connect("injected")}
-                                    onClick={syncWallet}
+                                    onClick={() => syncWallet(wallet)}
                                 >
                                     Connect Wallet{" "}
                                 </Button>

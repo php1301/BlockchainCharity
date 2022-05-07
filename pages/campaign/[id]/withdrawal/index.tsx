@@ -28,116 +28,210 @@ import {
     AlertDescription,
     HStack,
     Stack,
-    Link } from "@chakra-ui/react";
+    Link,
+} from "@chakra-ui/react";
 import {
     ArrowBackIcon,
     InfoIcon,
     CheckCircleIcon,
-    WarningIcon } from "@chakra-ui/icons";
+    WarningIcon,
+} from "@chakra-ui/icons";
 import { getWEIPriceInUSD } from "pages/api/getETHPrice";
+import axiosClient from "src/framework/axios";
+import { getETHPrice, getETHPriceInUSD } from "@libs/get-eth-price";
+import web3 from "@libs/web3";
+import { useWallet } from "use-wallet";
+import { getAuth } from "firebase/auth";
+import { firebaseClient } from "src/firebase";
+import {
+    isSuccessfulTransaction,
+    waitTransaction,
+} from "@libs/poll-confirmation";
 //import web3 from "../../../../smart-contract/web3";
 //import Campaign from "../../../../smart-contract/campaign";
 
-//thêm onApprove, onFinalize trong file gốc, 
+//thêm onApprove, onFinalize trong file gốc,
 //<Td>{/*request.description*/}</Td>, atr bg trong <Tr> và còn rất nhiều bên dưới,
-//request.complete, props.disabled /*|| request.approvalCount =,
+//request.complete, disabled /*|| request.approvalCount =,
 ////const campaign = Campaign(campaignId), /*web3.utils.fromWei(balance, "ether")*/,
 //
 
-/*export async function getServerSideProps({ params }) {
+export async function getServerSideProps({
+    params,
+}: {
+    params: { id: string };
+}) {
     const campaignId = params.id;
-    const campaign = Campaign(campaignId);
-    const requestCount = await campaign.methods.getRequestsCount().call();
-    const approversCount = await campaign.methods.approversCount().call();
-    const summary = await campaign.methods.getSummary().call();
+    const { requestsCount: requestCount }: { requestsCount: any } =
+        await axiosClient.get(`/campaigns/get-requests-count/${campaignId}`);
+    const { approversCount }: { approversCount: any } = await axiosClient.get(
+        `/campaigns/get-approvers-count/${campaignId}`,
+    );
+    const { summary }: any = await axiosClient.get(
+        `/campaigns/get-campaign-summary/${campaignId}`,
+    );
     const ETHPrice = await getETHPrice();
-  
+
     return {
-      props: {
-        campaignId,
-        requestCount,
-        approversCount,
-        balance: summary[1],
-        name: summary[5],
-        ETHPrice,
-      },
+        props: {
+            campaignId,
+            requestCount,
+            approversCount,
+            balance: summary[1],
+            name: summary[5],
+            ETHPrice,
+        },
     };
-  }*/
+}
 
-export const RequestRow: React.FC<{
-    id: string, 
-    request: any, 
-    approversCount: any, 
-    campaignId: string,
-    disabled: any,
-    ETHPrice: any }> = (props) => {
-        
+const RequestRow: React.FC<{
+    id: string;
+    request: any;
+    approversCount: any;
+    campaignId: string;
+    disabled: any;
+    ETHPrice: any;
+    wallet: any;
+    getRequests: any;
+}> = ({
+    id,
+    request,
+    approversCount,
+    campaignId,
+    disabled,
+    ETHPrice,
+    wallet,
+    getRequests,
+}) => {
     const router = useRouter();
-    const readyToFinalize = props.request.approvalCount > props.approversCount / 2;
-    const [errorMessageApprove, setErrorMessageApprove] = useState();
+    const readyToFinalize = request.approvalCount > approversCount / 2;
+    const [errorMessageApprove, setErrorMessageApprove] = useState("");
     const [loadingApprove, setLoadingApprove] = useState(false);
-    const [errorMessageFinalize, setErrorMessageFinalize] = useState();
+    const [errorMessageFinalize, setErrorMessageFinalize] = useState("");
     const [loadingFinalize, setLoadingFinalize] = useState(false);
-
     const onApprove = async () => {
         setLoadingApprove(true);
-        /*try {
-        const campaign = Campaign(campaignId);
-        const accounts = await web3.eth.getAccounts();
-        await campaign.methods.approveRequest(id).send({
-            from: accounts[0],
-        });
-        router.reload();
+        setErrorMessageApprove("");
+        try {
+            const accounts = wallet?.account;
+            const { txParams }: any = await axiosClient.post(
+                "/campaigns/approve-withdraw-request",
+                {
+                    walletAddr: accounts,
+                    id,
+                    campaignId,
+                },
+            );
+            console.log(txParams);
+            const final = await (window as any)?.ethereum.request({
+                method: "eth_sendTransaction",
+                params: [txParams],
+            });
+            console.log(final);
+            const receipt = await waitTransaction(web3, final, {
+                interval: 500,
+                blocksToWait: 1,
+            });
+            const isSuccessTx = isSuccessfulTransaction(receipt);
+            if (isSuccessTx) {
+                const { docs }: any = await axiosClient.post(
+                    "/campaigns/approve-withdraw-request-fb",
+                    {
+                        walletAddr: accounts,
+                        id,
+                        campaignId,
+                    },
+                );
+                console.log(docs);
+                await getRequests();
+                // router.reload();
+            }
         } catch (err) {
-        setErrorMessageApprove(err.message);
+            if ((err as any).response.status === 403) {
+                setErrorMessageApprove("Not qualified to approve");
+            } else {
+                setErrorMessageApprove((err as any).message);
+            }
         } finally {
-        setLoadingApprove(false);
-        }*/
-    }
+            setLoadingApprove(false);
+        }
+    };
 
     const onFinalize = async () => {
         setLoadingFinalize(true);
-        /*try {
-        const campaign = Campaign(campaignId);
-        const accounts = await web3.eth.getAccounts();
-        await campaign.methods.finalizeRequest(id).send({
-            from: accounts[0],
-        });
-        router.reload();
+        setErrorMessageFinalize("");
+        setErrorMessageApprove("");
+        try {
+            const accounts = wallet?.account;
+            const { txParams }: any = await axiosClient.post(
+                "/campaigns/finalize-request",
+                {
+                    walletAddr: accounts,
+                    id,
+                    campaignId,
+                },
+            );
+            console.log(txParams);
+            const final = await (window as any)?.ethereum.request({
+                method: "eth_sendTransaction",
+                params: [txParams],
+            });
+            console.log(final);
+            const receipt = await waitTransaction(web3, final, {
+                interval: 500,
+                blocksToWait: 1,
+            });
+            const isSuccessTx = isSuccessfulTransaction(receipt);
+            if (isSuccessTx) {
+                const { docs }: any = await axiosClient.post(
+                    "/campaigns/finalize-request-fb",
+                    {
+                        id,
+                        campaignId,
+                    },
+                );
+                console.log(docs);
+                await getRequests();
+                // router.reload();
+            }
         } catch (err) {
-        setErrorMessageFinalize(err.message);
+            if ((err as any).response.status === 403) {
+                setErrorMessageFinalize("Not qualified to approve");
+            } else {
+                setErrorMessageFinalize((err as any).message);
+            }
         } finally {
-        setLoadingFinalize(false);
-        }*/
-    }
+            setLoadingFinalize(false);
+        }
+    };
 
     return (
         <Tr
             bg={
-            readyToFinalize //&& !request.complete
-              ? useColorModeValue("teal.100", "teal.700")
-              : useColorModeValue("gray.100", "gray.700")
+                readyToFinalize && !request.complete
+                    ? useColorModeValue("teal.100", "teal.700")
+                    : useColorModeValue("gray.100", "gray.700")
             }
-            //opacity={request.complete ? "0.4" : "1"}
+            opacity={request.complete ? "0.4" : "1"}
         >
-            <Td>{props.id}</Td>
-            <Td>{/*request.description*/}</Td>
+            <Td>{id}</Td>
+            <Td>{request.description}</Td>
             <Td isNumeric>
-                {/*web3.utils.fromWei(request.value, "ether")*/}ETH ($
-                {getWEIPriceInUSD(props.ETHPrice, /*request.value*/0)})
+                {request.value}ETH ($
+                {getETHPriceInUSD(ETHPrice, request.value)})
             </Td>
             <Td>
-            <Link
-                color="teal.500"
-                href={`https://rinkeby.etherscan.io/address/${/*request.recipient*/0}`}
-                isExternal
-            >
-                {" "}
-                {/*request.recipient.substr(0, 10) + "..."*/}
-            </Link>
+                <Link
+                    color="teal.500"
+                    href={`https://rinkeby.etherscan.io/address/${request.recipient}`}
+                    isExternal
+                >
+                    {" "}
+                    {request?.recipient?.slice(0, 10) + "..."}
+                </Link>
             </Td>
             <Td>
-                {/*request.approvalCount}/{approversCount*/}
+                {request.approvalCount}/{approversCount}
             </Td>
             <Td>
                 <HStack spacing={2}>
@@ -149,11 +243,13 @@ export const RequestRow: React.FC<{
                         fontSize={"1em"}
                     >
                         <WarningIcon
-                        color={useColorModeValue("red.600", "red.300")}
-                        display={errorMessageApprove ? "inline-block" : "none"}
+                            color={useColorModeValue("red.600", "red.300")}
+                            display={
+                                errorMessageApprove ? "inline-block" : "none"
+                            }
                         />
                     </Tooltip>
-                    {/*request.complete*/0 ? (
+                    {request.complete ? (
                         <Tooltip
                             label="This Request has been finalized & withdrawn to the recipient,it may then have less no of approvers"
                             bg={useColorModeValue("white", "gray.700")}
@@ -161,10 +257,13 @@ export const RequestRow: React.FC<{
                             color={useColorModeValue("gray.800", "white")}
                             fontSize={"1em"}
                         >
-                        <CheckCircleIcon
-                            color={useColorModeValue("green.600", "green.300")}
-                        />
-                      </Tooltip>
+                            <CheckCircleIcon
+                                color={useColorModeValue(
+                                    "green.600",
+                                    "green.300",
+                                )}
+                            />
+                        </Tooltip>
                     ) : (
                         <Button
                             colorScheme="yellow"
@@ -174,7 +273,9 @@ export const RequestRow: React.FC<{
                                 color: "white",
                             }}
                             onClick={onApprove}
-                            isDisabled={props.disabled /*|| request.approvalCount == approversCount*/}
+                            isDisabled={
+                                request.approvalCount === approversCount
+                            }
                             isLoading={loadingApprove}
                         >
                             Approve
@@ -196,7 +297,7 @@ export const RequestRow: React.FC<{
                         mr="2"
                     />
                 </Tooltip>
-                {/*request.complete*/0 ? (
+                {request.complete ? (
                     <Tooltip
                         label="This Request has been finalized & withdrawn to the recipient,it may then have less no of approvers"
                         bg={useColorModeValue("white", "gray.700")}
@@ -217,7 +318,7 @@ export const RequestRow: React.FC<{
                                 bg: "green.600",
                                 color: "white",
                             }}
-                            isDisabled={props.disabled /*|| (!request.complete && !readyToFinalize)*/}
+                            isDisabled={!request.complete && !readyToFinalize}
                             onClick={onFinalize}
                             isLoading={loadingFinalize}
                         >
@@ -235,54 +336,69 @@ export const RequestRow: React.FC<{
                                 as="span"
                                 color={useColorModeValue("teal.800", "white")}
                                 display={
-                                readyToFinalize /*&& !request.complete*/ ? "inline-block" : "none"
+                                    readyToFinalize && !request.complete
+                                        ? "inline-block"
+                                        : "none"
                                 }
                             />
-                    </Tooltip>
+                        </Tooltip>
                     </HStack>
                 )}
             </Td>
         </Tr>
-    )
-}
+    );
+};
 
 interface withdrawalInfo {
-    campaignId: string 
-    requestCount: any 
-    approversCount: any
-    balance: any
-    name: string
-    ETHPrice: any 
+    campaignId: string;
+    requestCount: any;
+    approversCount: any;
+    balance: any;
+    name: string;
+    ETHPrice: any;
 }
 
-export default function Withdrawal(props: withdrawalInfo) {
-    
-    const [requestsList, setRequestsList] = useState([]);
+export default function Withdrawal({
+    campaignId,
+    requestCount,
+    balance,
+    name,
+    ETHPrice,
+    approversCount,
+}: withdrawalInfo) {
+    const [requestsList, setRequestsList] = useState<any>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [FundNotAvailable, setFundNotAvailable] = useState(false);
-    //const campaign = Campaign(campaignId);
+    const wallet = useWallet();
+    useEffect(() => {
+        const authenticateUser = async () => {
+            const auth = getAuth(firebaseClient);
+            console.log(auth);
+            auth.onAuthStateChanged(async (user) => {
+                console.log(user);
+                await wallet.connect("injected");
+            });
+        };
+        authenticateUser();
+    }, []);
     async function getRequests() {
-        /*try {
-            const requests = await Promise.all(
-              Array(parseInt(requestCount))
-                .fill()
-                .map((element, index) => {
-                  return campaign.methods.requests(index).call();
-                })
+        try {
+            const { requests }: any = await axiosClient.get(
+                `/campaigns/get-campaign-requests/${campaignId}/1`,
             );
-      
+
             console.log("requests", requests);
             setRequestsList(requests);
             setIsLoading(false);
             return requests;
-            } catch (e) {
-                console.log(e);
-        }*/
+        } catch (e) {
+            console.log(e);
+        }
     }
 
     useEffect(() => {
-        if (props.balance == 0) {
-          setFundNotAvailable(true);
+        if (balance === 0) {
+            setFundNotAvailable(true);
         }
         getRequests();
     }, []);
@@ -291,17 +407,23 @@ export default function Withdrawal(props: withdrawalInfo) {
         <div>
             <Head>
                 <title>Campaign Withdrawal Requests</title>
-                <meta name="description" content="Create a Withdrawal Request" />
+                <meta
+                    name="description"
+                    content="Create a Withdrawal Request"
+                />
                 <link rel="icon" href="/logo.svg" />
             </Head>
-            
+
             <main>
-                <Container px={{ base: "4", md: "12" }} maxW={"7xl"} /*align={"left"}*/>
+                <Container
+                    px={{ base: "4", md: "12" }}
+                    maxW={"7xl"} /*align={"left"}*/
+                >
                     <Flex flexDirection={{ base: "column", md: "row" }} py={4}>
                         <Box py="4">
                             <Text fontSize={"lg"} color={"teal.400"}>
                                 <ArrowBackIcon mr={2} />
-                                <NextLink href={`/campaign/${props.campaignId}`}>
+                                <NextLink href={`/campaign/${campaignId}`}>
                                     Back to Campaign
                                 </NextLink>
                             </Text>
@@ -310,13 +432,13 @@ export default function Withdrawal(props: withdrawalInfo) {
                         <Box py="4">
                             Campaign Balance :{" "}
                             <Text as="span" fontWeight={"bold"} fontSize="lg">
-                                {props.balance > 0
-                                ? /*web3.utils.fromWei(balance, "ether")*/""
-                                : "0, Become a Donor 😄"}
+                                {balance > 0
+                                    ? web3.utils.fromWei(balance, "ether")
+                                    : "0, Become a Donor 😄"}
                             </Text>
                             <Text
                                 as="span"
-                                display={props.balance > 0 ? "inline" : "none"}
+                                display={balance > 0 ? "inline" : "none"}
                                 pr={2}
                                 fontWeight={"bold"}
                                 fontSize="lg"
@@ -326,11 +448,15 @@ export default function Withdrawal(props: withdrawalInfo) {
                             </Text>
                             <Text
                                 as="span"
-                                display={props.balance > 0 ? "inline" : "none"}
+                                display={balance > 0 ? "inline" : "none"}
                                 fontWeight={"normal"}
-                                color={useColorModeValue("gray.500", "gray.200")}
+                                color={useColorModeValue(
+                                    "gray.500",
+                                    "gray.200",
+                                )}
                             >
-                                (${getWEIPriceInUSD(props.ETHPrice, props.balance)})
+                                ($
+                                {getWEIPriceInUSD(ETHPrice, balance)})
                             </Text>
                         </Box>
                     </Flex>
@@ -338,90 +464,99 @@ export default function Withdrawal(props: withdrawalInfo) {
                         <Alert status="error" my={4}>
                             <AlertIcon />
                             <AlertDescription>
-                                The Current Balance of the Campaign is 0, Please Contribute to
-                                approve and finalize Requests.
+                                The Current Balance of the Campaign is 0, Please
+                                Contribute to approve and finalize Requests.
                             </AlertDescription>
                         </Alert>
                     ) : null}
                 </Container>
-                {/*requestsList.length*/1 > 0 ? (
-                    <Container px={{ base: "4", md: "12" }} maxW={"7xl"} /*align={"left"}*/>
-                        <Flex flexDirection={{ base: "column", lg: "row" }} py={4}>
-                        <Box py="2" pr="2">
-                            <Heading
-                                textAlign={useBreakpointValue({ base: "left" })}
-                                fontFamily={"heading"}
-                                color={useColorModeValue("gray.800", "white")}
-                                as="h3"
-                                isTruncated
-                                maxW={"3xl"}
-                            >
-                                Withdrawal Requests for {props.name} Campaign
-                            </Heading>
-                        </Box>
-                        <Spacer />
-                        <Box py="2">
-                            <NextLink href={`/campaign/${props.campaignId}/withdrawal/new`}>
-                                <Button
-                                    display={{ sm: "inline-flex" }}
-                                    //justify={"flex-end"}
-                                    fontSize={"md"}
-                                    fontWeight={600}
-                                    color={"white"}
-                                    bg={"teal.400"}
-                                    //href={"#"}
-                                    _hover={{
-                                    bg: "teal.300",
-                                    }}
+                {requestsList.length > 0 ? (
+                    <Container
+                        px={{ base: "4", md: "12" }}
+                        maxW={"7xl"} /*align={"left"}*/
+                    >
+                        <Flex
+                            flexDirection={{ base: "column", lg: "row" }}
+                            py={4}
+                        >
+                            <Box py="2" pr="2">
+                                <Heading
+                                    textAlign={useBreakpointValue({
+                                        base: "left",
+                                    })}
+                                    fontFamily={"heading"}
+                                    color={useColorModeValue(
+                                        "gray.800",
+                                        "white",
+                                    )}
+                                    as="h3"
+                                    isTruncated
+                                    maxW={"3xl"}
                                 >
-                                    Add Withdrawal Request
-                                </Button>
-                            </NextLink>
-                        </Box>
+                                    Withdrawal Requests for {name} Campaign
+                                </Heading>
+                            </Box>
+                            <Spacer />
+                            <Box py="2">
+                                <NextLink
+                                    href={`/campaign/${campaignId}/withdrawal/new`}
+                                >
+                                    <Button
+                                        display={{ sm: "inline-flex" }}
+                                        //justify={"flex-end"}
+                                        fontSize={"md"}
+                                        fontWeight={600}
+                                        color={"white"}
+                                        bg={"teal.400"}
+                                        //href={"#"}
+                                        _hover={{
+                                            bg: "teal.300",
+                                        }}
+                                    >
+                                        Add Withdrawal Request
+                                    </Button>
+                                </NextLink>
+                            </Box>
                         </Flex>{" "}
                         <Box overflowX="auto">
                             <Table>
-                            <Thead>
-                                <Tr>
-                                    <Th>ID</Th>
-                                    <Th w="30%">Description</Th>
-                                    <Th isNumeric>Amount</Th>
-                                    <Th maxW="12%" isTruncated>
-                                        Recipient Wallet Address
-                                    </Th>
-                                    <Th>Approval Count </Th>
-                                    <Th>Approve </Th>
-                                    <Th>Finalize </Th>
-                                </Tr>
-                            </Thead>
-                            <Tbody>
-                                {/*requestsList.map((request, index) => {
-                                    return (
-                                    <RequestRow
-                                        key={index}
-                                        id={index}
-                                        request={request}
-                                        approversCount={approversCount}
-                                        campaignId={campaignId}
-                                        disabled={FundNotAvailable}
-                                        ETHPrice={ETHPrice}
-                                    />
-                                    );
-                                })*/}
-                                <RequestRow
-                                    key={1}
-                                    id={"000"}
-                                    request={9}
-                                    approversCount={2}
-                                    campaignId={"00000"}
-                                    disabled={1}
-                                    ETHPrice={100}
-                                />
-
-                            </Tbody>
-                            <TableCaption textAlign="left" ml="-2">
-                                Found {props.requestCount} Requests
-                            </TableCaption>
+                                <Thead>
+                                    <Tr>
+                                        <Th>ID</Th>
+                                        <Th w="30%">Description</Th>
+                                        <Th isNumeric>Amount</Th>
+                                        <Th maxW="12%" isTruncated>
+                                            Recipient Wallet Address
+                                        </Th>
+                                        <Th>Approval Count </Th>
+                                        <Th>Approve </Th>
+                                        <Th>Finalize </Th>
+                                    </Tr>
+                                </Thead>
+                                <Tbody>
+                                    {requestsList.map(
+                                        (request: any, index: number) => {
+                                            return (
+                                                <RequestRow
+                                                    key={index}
+                                                    id={index.toString()}
+                                                    request={request}
+                                                    approversCount={
+                                                        approversCount
+                                                    }
+                                                    campaignId={campaignId}
+                                                    disabled={FundNotAvailable}
+                                                    ETHPrice={ETHPrice}
+                                                    wallet={wallet}
+                                                    getRequests={getRequests}
+                                                />
+                                            );
+                                        },
+                                    )}
+                                </Tbody>
+                                <TableCaption textAlign="left" ml="-2">
+                                    Found {requestCount} Requests
+                                </TableCaption>
                             </Table>
                         </Box>
                     </Container>
@@ -433,7 +568,7 @@ export default function Withdrawal(props: withdrawalInfo) {
                             //align={"left"}
                             display={isLoading ? "block" : "none"}
                         >
-                            <SimpleGrid /*rows={{ base: 3 }}*/ spacing={2}>
+                            <SimpleGrid row={{ base: 3 }} spacing={2}>
                                 <Skeleton height="2rem" />
                                 <Skeleton height="5rem" />
                                 <Skeleton height="5rem" />
@@ -444,67 +579,79 @@ export default function Withdrawal(props: withdrawalInfo) {
                             maxW={"lg"}
                             //align={"center"}
                             display={
-                              requestsList.length === 0 && !isLoading ? "block" : "none"
+                                requestsList.length === 0 && !isLoading
+                                    ? "block"
+                                    : "none"
                             }
                         >
-                            <SimpleGrid /*row spacing={2} align="center"*/>
-                            <Stack align="center">
-                                <NextImage
-                                    src="/static/no-requests.png"
-                                    alt="no-request"
-                                    width="150"
-                                    height="150"
-                                />
-                            </Stack>
-                            <Heading
-                                textAlign={"center"}
-                                color={useColorModeValue("gray.800", "white")}
-                                as="h4"
-                                size="md"
-                            >
-                                No Requests yet for {name} Campaign
-                            </Heading>
-                            <Text
-                                textAlign={useBreakpointValue({ base: "center" })}
-                                color={useColorModeValue("gray.600", "gray.300")}
-                                fontSize="sm"
-                            >
-                                Create a Withdrawal Request to Withdraw funds from the
-                                Campaign😄
-                            </Text>
-                            
-                            <Button
-                                fontSize={"md"}
-                                fontWeight={600}
-                                color={"white"}
-                                bg={"teal.400"}
-                                _hover={{
-                                    bg: "teal.300",
-                                }}
-                            >
-                                <NextLink href={`/campaign/${props.campaignId}/withdrawal/new`}>
-                                    Create Withdrawal Request
-                                </NextLink>
-                            </Button>
+                            <SimpleGrid spacing={2} alignContent="center">
+                                <Stack align="center">
+                                    <NextImage
+                                        src="/static/no-requests.png"
+                                        alt="no-request"
+                                        width="150"
+                                        height="150"
+                                    />
+                                </Stack>
+                                <Heading
+                                    textAlign={"center"}
+                                    color={useColorModeValue(
+                                        "gray.800",
+                                        "white",
+                                    )}
+                                    as="h4"
+                                    size="md"
+                                >
+                                    No Requests yet for {name} Campaign
+                                </Heading>
+                                <Text
+                                    textAlign={useBreakpointValue({
+                                        base: "center",
+                                    })}
+                                    color={useColorModeValue(
+                                        "gray.600",
+                                        "gray.300",
+                                    )}
+                                    fontSize="sm"
+                                >
+                                    Create a Withdrawal Request to Withdraw
+                                    funds from the Campaign😄
+                                </Text>
 
-                            <Button
-                                fontSize={"md"}
-                                fontWeight={600}
-                                color={"white"}
-                                bg={"gray.400"}
-                                _hover={{
-                                    bg: "gray.300",
-                                }}
-                            >
-                                <NextLink href={`/campaign/${props.campaignId}/`}>
-                                    Go to Campaign
-                                </NextLink>
-                            </Button>
+                                <Button
+                                    fontSize={"md"}
+                                    fontWeight={600}
+                                    color={"white"}
+                                    bg={"teal.400"}
+                                    _hover={{
+                                        bg: "teal.300",
+                                    }}
+                                >
+                                    <NextLink
+                                        href={`/campaign/${campaignId}/withdrawal/new`}
+                                    >
+                                        Create Withdrawal Request
+                                    </NextLink>
+                                </Button>
+
+                                <Button
+                                    fontSize={"md"}
+                                    fontWeight={600}
+                                    color={"white"}
+                                    bg={"gray.400"}
+                                    _hover={{
+                                        bg: "gray.300",
+                                    }}
+                                >
+                                    <NextLink href={`/campaign/${campaignId}/`}>
+                                        Go to Campaign
+                                    </NextLink>
+                                </Button>
                             </SimpleGrid>
                         </Container>
                     </div>
                 )}
             </main>
         </div>
-    )
+    );
 }

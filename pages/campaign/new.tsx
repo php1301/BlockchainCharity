@@ -1,6 +1,6 @@
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useAsync } from "react-use";
 import { getETHPrice, getETHPriceInUSD } from "@libs/get-eth-price";
 import Head from "next/head";
@@ -25,6 +25,13 @@ import {
 import { ArrowBackIcon, DeleteIcon } from "@chakra-ui/icons";
 import NextLinh from "next/link";
 import { useWallet } from "use-wallet";
+import { getAuth } from "firebase/auth";
+import { firebaseClient } from "src/firebase";
+import web3 from "@libs/web3";
+import axiosClient from "src/framework/axios";
+// import factory from "@libs/factory";
+import { syncWallet } from "@libs/sync-wallet";
+import { waitTransaction } from "@libs/poll-confirmation";
 //import factory from "../../smart-contract/factory";
 //import web3 from "../../smart-contract/web3";
 
@@ -57,7 +64,17 @@ export default function NewCampaign() {
             console.log(error);
         }
     }, []);
-
+    useEffect(() => {
+        const authenticateUser = async () => {
+            const auth = getAuth(firebaseClient);
+            console.log(auth);
+            auth.onAuthStateChanged(async (user) => {
+                console.log(user);
+                await wallet.connect("injected");
+            });
+        };
+        authenticateUser();
+    }, []);
     async function onSubmit(data: any) {
         console.log(
             data.minimumContribution,
@@ -66,25 +83,80 @@ export default function NewCampaign() {
             data.imageUrl,
             data.target,
         );
-        // try {
-        //     const accounts = await web3.eth.getAccounts();
-        //     await factory.methods
-        //         .createCampaign(
-        //             web3.utils.toWei(data.minimumContribution, "ether"),
-        //             data.campaignName,
-        //             data.description,
-        //             data.imageUrl,
-        //             web3.utils.toWei(data.target, "ether"),
-        //         )
-        //         .send({
-        //             from: accounts[0],
-        //         });
+        try {
+            // const accounts = await web3.eth.getAccounts();
+            // await factory.methods
+            //     .createCampaign(
+            //         web3.utils.toWei(data.minimumContribution, "ether"),
+            //         data.campaignName,
+            //         data.description,
+            //         "https://picsum.photos/200/300" || data.imageUrl,
+            //         web3.utils.toWei(data.target, "ether"),
+            //     )
+            //     .send({
+            //         from: accounts[0],
+            //     });
 
-        //     router.push("/");
-        // } catch (err) {
-        //     setError(err.message);
-        //     console.log(err);
-        // }
+            // router.push("/");
+            // const accounts = await web3.eth.getAccounts();
+            setError("");
+            const accounts = wallet?.account;
+            const date = new Date();
+            const timestamp = Number(date);
+            const today = date.toISOString();
+            const { txParams: res }: { txParams: any } = await axiosClient.post(
+                "/campaigns/create-campaign",
+                {
+                    minimumContribution: data.minimumContribution,
+                    campaignName: data.campaignName,
+                    description: data.description,
+                    // imageUrl: data.imageUrl,
+                    imageUrl: "https://picsum.photos/200/300",
+                    target: data.target,
+                    walletAddr: accounts,
+                    date: today,
+                },
+            );
+            const final = await (window as any)?.ethereum.request({
+                method: "eth_sendTransaction",
+                params: [res],
+            });
+            console.log(final);
+            // const receipt = await web3.eth.getTransactionReceipt(final);
+            // console.log(receipt);
+            const receipt = await waitTransaction(web3, final, {
+                interval: 500,
+                blocksToWait: 1,
+            });
+            console.log(receipt);
+            const campaignId = web3.eth.abi.decodeParameters(
+                ["address"],
+                receipt?.logs[0]?.data,
+            )["0"];
+            console.log(campaignId);
+            const { docs }: any = await axiosClient.post(
+                "/campaigns/create-campaign-fb",
+                {
+                    minimumContribution: data.minimumContribution,
+                    campaignName: data.campaignName,
+                    description: data.description,
+                    // imageUrl: data.imageUrl,
+                    imageUrl: "https://picsum.photos/200/300",
+                    target: data.target,
+                    walletAddr: accounts,
+                    campaignId,
+                    txHash: final,
+                    date: today,
+                    roadmap: [],
+                    timestamp,
+                },
+            );
+            console.log(docs);
+            router.push(`/campaign/${campaignId}`);
+        } catch (err) {
+            setError((err as any).message);
+            console.log(err);
+        }
     }
 
     return (
@@ -319,7 +391,7 @@ export default function NewCampaign() {
                                                     bg: "teal.300",
                                                 }}
                                                 onClick={() =>
-                                                    wallet.connect("injected")
+                                                    syncWallet(wallet)
                                                 }
                                             >
                                                 Connect Wallet{" "}

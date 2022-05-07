@@ -1,20 +1,18 @@
 import axios from "axios";
 // import queryString from "query-string";
-import { getAuth, getIdToken } from "firebase/auth";
+import { getAuth } from "firebase/auth";
+import { getCookie } from "cookies-next";
 
 const getFirebaseToken = async () => {
     const currentUser = getAuth().currentUser;
     if (currentUser) return currentUser.getIdToken();
 
     // Not logged in
-    const hasRememberedAccount = localStorage.getItem(
-        "firebaseui::rememberedAccounts",
-    );
-    if (!hasRememberedAccount) return null;
+    return null;
 };
 
 // Set up default config for http requests here
-const baseUrl = "http://localhost:3000/dev";
+const baseUrl = getCookie("base")?.toString() || "http://localhost:3000/dev";
 // Please have a look at here `https://github.com/axios/axios#request- config` for the full list of configs
 const axiosClient = axios.create({
     baseURL: baseUrl,
@@ -28,7 +26,7 @@ axiosClient.interceptors.request.use(async (config) => {
     const token = await getFirebaseToken();
 
     if (token) {
-        console.log("token refresh", token)
+        console.log("token refresh", token);
         config.headers = {
             ...config.headers,
             Authorization: `Bearer ${token ? token : ""}`,
