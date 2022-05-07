@@ -32,6 +32,7 @@ import { FcShare, FcDonate, FcMoneyTransfer } from "react-icons/fc";
 import axiosClient from "src/framework/axios";
 import { getETHPrice, getWEIPriceInUSD } from "@libs/get-eth-price";
 import web3 from "@libs/web3";
+import { ComboBox } from "@components/comboBox";
 
 export async function getServerSideProps() {
     const { list: deployedCampaigns }: any = await axiosClient.get(
@@ -227,7 +228,6 @@ export const CampaignCard: React.FC<{
 export default function Home({ campaigns }: { campaigns: any }) {
     const [campaignList, setCampaignList] = useState<any>([]);
     const [ethPrice, updateEthPrice] = useState<any>(null);
-
     async function getSummary() {
         try {
             const summary = await Promise.all(
@@ -267,7 +267,7 @@ export default function Home({ campaigns }: { campaigns: any }) {
     return (
         <div>
             <Head>
-                <title>FundingHealthcare</title>
+                <title>FundingFun</title>
 
                 <meta
                     name="description"
@@ -286,6 +286,7 @@ export default function Home({ campaigns }: { campaigns: any }) {
                     href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
                     rel="stylesheet"
                 ></link>
+            
             </Head>
             <main className={styles.main}>
                 <Container
@@ -364,6 +365,10 @@ export default function Home({ campaigns }: { campaigns: any }) {
                         </SimpleGrid>
                     )}
                 </Container>
+                <ComboBox 
+                    campaigns={campaignList}
+                    top10={"target"}
+                />
                 <Container
                     py={{ base: "4", md: "12" }}
                     maxW={"7xl"}
@@ -372,7 +377,7 @@ export default function Home({ campaigns }: { campaigns: any }) {
                     <HStack spacing={2}>
                         <SkeletonCircle size="4" />
                         <Heading as="h2" size="lg">
-                            How Funding Healthcare Works
+                            How Funding Fun Works
                         </Heading>
                     </HStack>
                     <Divider marginTop="4" />
@@ -403,16 +408,6 @@ export default function Home({ campaigns }: { campaigns: any }) {
                             }
                         />
                     </SimpleGrid>
-                    {/* <Heading as="h2" size="lg" mt="8">
-            For any queries raise an issue on{" "}
-            <Link
-              color="teal.500"
-              href="https://github.com/harsh242/betterfund-crowdfunding-in-blockchain/issues"
-              isExternal
-            >
-              the Github Repo <ExternalLinkIcon mx="2px" />
-            </Link>{" "}
-          </Heading> */}
                     <Divider marginTop="4" />
                 </Container>
             </main>
