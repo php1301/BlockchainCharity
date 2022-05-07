@@ -51,7 +51,7 @@ export default function Footer() {
               zIndex: -1,
             }}
           >
-            <NextLink href="/">Funding Healthcare</NextLink>
+            <NextLink href="/">Funding Fun</NextLink>
           </Box>
         </Heading>
         <Stack direction={"row"} spacing={6}>

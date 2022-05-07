@@ -98,7 +98,7 @@ export const NavBar: React.FC = () => {
         authenticateUser();
     }, []);
     return (
-        <Box>
+        <Box zIndex={9999}>
             <Flex
                 color={useColorModeValue("gray.600", "white")}
                 py={{ base: 2 }}
@@ -131,7 +131,7 @@ export const NavBar: React.FC = () => {
                         <Heading
                             textAlign="left"
                             fontFamily={"heading"}
-                            color={useColorModeValue("teal.800", "white")}
+                            color={useColorModeValue("green.800", "white")}
                             //as="h2"
                             size="lg"
                         >
@@ -159,7 +159,7 @@ export const NavBar: React.FC = () => {
                                 }}
                             >
                                 <NextLink href="/">
-                                    Funding🌱Healthcare
+                                    Funding🌱Fun
                                 </NextLink>
                             </Box>
                         </Heading>
@@ -178,8 +178,8 @@ export const NavBar: React.FC = () => {
                             color={useColorModeValue("green.400", "green.300")}
                             display={{ base: "none", md: "inline-flex" }}
                         >
-                            <NextLink href="/campaign/new">
-                                Create Campaign
+                            <NextLink href="/user">
+                                Profile
                             </NextLink>
                         </Button>
                         {wallet.status === "connected" || userAuth?.uid ? (
@@ -207,10 +207,10 @@ export const NavBar: React.FC = () => {
                                     fontSize={"md"}
                                     fontWeight={600}
                                     color={"white"}
-                                    bg={"teal.400"}
+                                    bg={"green.400"}
                                     //href={"#"}
                                     _hover={{
-                                        bg: "teal.300",
+                                        bg: "green.300",
                                     }}
                                     // onClick={() => wallet.connect("injected")}
                                     onClick={syncWallet}
