@@ -1,11 +1,11 @@
 import { VStack } from "@chakra-ui/layout";
 import { Skeleton, SimpleGrid } from "@chakra-ui/react";
-import { getCookie } from "cookies-next";
+
+import Header from "pages/header";
+import Profile from "pages/profile";
+import Social from "pages/social";
 import { useEffect, useState } from "react";
 import axiosClient from "src/framework/axios";
-import Header from "./header";
-import Profile from "./profile";
-import Social from "./social";
 
 function App() {
     const [userData, setUserData] = useState(null);
@@ -25,7 +25,7 @@ function App() {
             <VStack p={5}>
                 {userData ? (
                     <>
-                        <Header user={userData}></Header>
+                        <Header allowUpdate={false} user={userData}></Header>
                         <Social user={userData}></Social>
                         <Profile user={userData}></Profile>
                     </>
@@ -45,16 +45,3 @@ function App() {
     );
 }
 export default App;
-export async function getServerSideProps({ req, res }: any) {
-    const uid = getCookie("uid", { req, res })?.toString();
-    console.log(uid);
-    if (!uid) {
-        return {
-            redirect: {
-                destination: "/",
-                permanent: false,
-            },
-        };
-    }
-    return { props: {} };
-}

@@ -38,7 +38,7 @@ import {
     Skeleton,
     Img,
     Flex,
- } from "@chakra-ui/react";
+} from "@chakra-ui/react";
 import { ExternalLinkIcon, InfoIcon } from "@chakra-ui/icons";
 import { StatCard } from "@components/statCard";
 import { getWEIPriceInUSD, getETHPriceInUSD } from "pages/api/getETHPrice";
@@ -100,15 +100,14 @@ interface PropsCampaignSingle {
     roadmap: any;
 }
 
-
 const CampaignCard: React.FC<{
     name: string;
     date: string;
     description: string;
 }> = (props) => {
     return (
-        <Tooltip 
-            label={props.name +": "+ props.description}
+        <Tooltip
+            label={props.name + ": " + props.description}
             bg={useColorModeValue("white", "gray.700")}
             placement={"top"}
             color={useColorModeValue("gray.800", "white")}
@@ -143,9 +142,8 @@ const CampaignCard: React.FC<{
                         >
                             {props.name}
                         </Box>
-
                     </Flex>
-                    <Flex alignContent="center" >
+                    <Flex alignContent="center">
                         <Heading size="base" isTruncated>
                             on: {props.date}
                         </Heading>
@@ -204,11 +202,28 @@ const CampaignSingle: React.FC<PropsCampaignSingle> = ({
     const router = useRouter();
     const { width, height } = useWindowSize();
     console.log("roadmap", roadmap);
-    const [roadmaps, setRoadmaps] = useState([
-        {name: 'Buy food', date: '1/1/2022', description: 'so we need to buy some food for the children who does not have any food'},
-        {name: 'Buy food', date: '1/1/2022', description: 'so we need to buy some food for the children who does not have any food'},
-        {name: 'Buy food', date: '1/1/2022', description: 'so we need to buy some food for the children who does not have any food'},
-    ])
+    const [roadmaps, setRoadmaps] = useState(
+        roadmap || [
+            {
+                name: "Chưa có roadmap",
+                date: "1/1/2022",
+                description:
+                    "so we need to buy some food for the children who does not have any food",
+            },
+            {
+                name: "Chưa có roadmap",
+                date: "1/1/2022",
+                description:
+                    "so we need to buy some food for the children who does not have any food",
+            },
+            {
+                name: "Chưa có roadmap",
+                date: "1/1/2022",
+                description:
+                    "so we need to buy some food for the children who does not have any food",
+            },
+        ],
+    );
     async function onSubmit(data: any) {
         try {
             setError("");
@@ -338,6 +353,14 @@ const CampaignSingle: React.FC<PropsCampaignSingle> = ({
                                 View on Rinkeby Etherscan{" "}
                                 <ExternalLinkIcon mx="2px" />
                             </Link>
+                            <Link
+                                color="teal.500"
+                                href={`/user/${manager}`}
+                                isExternal
+                            >
+                                View Creator Profile{" "}
+                                <ExternalLinkIcon mx="2px" />
+                            </Link>
                             <Box mx={"auto"} w={"full"}>
                                 <SimpleGrid
                                     columns={{ base: 1 }}
@@ -389,45 +412,50 @@ const CampaignSingle: React.FC<PropsCampaignSingle> = ({
                                         }
                                     />
                                 </SimpleGrid>
-                                <Container py={{ base: "4", md: "12" }} maxW={"7xl"}>
-                                <HStack spacing={2}>
-                                    <SkeletonCircle size="4" />
-                                    <Heading as="h2" size="lg">
-                                        Roadmap
-                                    </Heading>
-                                </HStack>
+                                <Container
+                                    py={{ base: "4", md: "12" }}
+                                    maxW={"7xl"}
+                                >
+                                    <HStack spacing={2}>
+                                        <SkeletonCircle size="4" />
+                                        <Heading as="h2" size="lg">
+                                            Roadmap
+                                        </Heading>
+                                    </HStack>
 
-                                <Divider marginTop="4" />
+                                    <Divider marginTop="4" />
 
-                                {roadmaps.length > 0 ? (
-                                    <SimpleGrid
-                                        columns={{ base: 1, md: 2 }}
-                                        spacing={10}
-                                        py={8}
-                                    >
-                                        {roadmaps.map((el, i) => {
-                                            return (
-                                                <div key={i}>
-                                                    <CampaignCard
-                                                        name={el.name}
-                                                        date={el.date}
-                                                        description={el.description}
-                                                    />
-                                                </div>
-                                            );
-                                        })}
-                                    </SimpleGrid>
-                                ) : (
-                                    <SimpleGrid
-                                        columns={{ base: 1, md: 2 }}
-                                        spacing={10}
-                                        py={8}
-                                    >
-                                        <Skeleton height="25rem" />
-                                        <Skeleton height="25rem" />
-                                    </SimpleGrid>
-                                )}
-                            </Container>
+                                    {roadmaps.length > 0 ? (
+                                        <SimpleGrid
+                                            columns={{ base: 1, md: 2 }}
+                                            spacing={10}
+                                            py={8}
+                                        >
+                                            {roadmaps.map((el, i) => {
+                                                return (
+                                                    <div key={i}>
+                                                        <CampaignCard
+                                                            name={el.name}
+                                                            date={el.date}
+                                                            description={
+                                                                el.description
+                                                            }
+                                                        />
+                                                    </div>
+                                                );
+                                            })}
+                                        </SimpleGrid>
+                                    ) : (
+                                        <SimpleGrid
+                                            columns={{ base: 1, md: 2 }}
+                                            spacing={10}
+                                            py={8}
+                                        >
+                                            <Skeleton height="25rem" />
+                                            <Skeleton height="25rem" />
+                                        </SimpleGrid>
+                                    )}
+                                </Container>
                             </Box>
                         </Stack>
                         <Stack spacing={{ base: 4 }}>

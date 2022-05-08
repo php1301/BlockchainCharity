@@ -12,6 +12,7 @@ import {
     MenuButton,
     MenuList,
     MenuItem,
+    IconButton,
 } from "@chakra-ui/react";
 import { getAuth, signOut } from "firebase/auth";
 import NextLink from "next/link";
@@ -20,63 +21,24 @@ import { DarkMode } from "..";
 import { firebaseClient } from "src/firebase";
 import { useEffect, useState } from "react";
 import { syncWallet } from "@libs/sync-wallet";
+import { removeCookies, setCookies } from "cookies-next";
+import { useRouter } from "next/router";
 
 export const NavBar: React.FC = () => {
     //sua lai connect wallet
     const wallet = useWallet();
+    const router = useRouter();
     const { colorMode, toggleColorMode } = useColorMode();
     const [userAuth, setUserAuth] = useState<{ uid: string; [x: string]: any }>(
         { uid: "" },
     );
-    const [display, changeDisplay] = useState('none')
+    const [display, changeDisplay] = useState("none");
 
-    const syncWallet = async () => {
-        const provider = new ethers.providers.Web3Provider(
-            (window as any)?.ethereum,
-        );
-        await provider.send("eth_requestAccounts", []);
-        const signer = provider.getSigner();
-        const walletAddr = await signer.getAddress();
-        console.log(walletAddr);
-        let response = await axiosClient.post(
-            `${baseUrl}/auth/nonce`,
-            {
-                walletAddr,
-            },
-            {
-                headers: {
-                    "Content-Type": "application/json",
-                },
-            },
-        );
-        const { nonce } = response;
-        const hexedNonce = toHex(nonce);
-        const signature = await signer.signMessage(hexedNonce);
-        console.log(`signature`, signature);
-        response = await axiosClient.post(
-            `${baseUrl}/auth/wallet`,
-            {
-                walletAddr,
-                nonce: hexedNonce,
-                signature,
-            },
-            {
-                headers: {
-                    "Content-Type": "application/json",
-                },
-            },
-        );
-        const { token, userDoc } = response;
-        const auth = getAuth(firebaseClient);
-        await signInWithCustomToken(auth, token);
-        const user = auth.currentUser;
-        await user?.reload();
-        console.log(user);
-        await wallet.connect("injected");
-    };
     const signOutWallet = async () => {
         const auth = getAuth();
         signOut(auth);
+        removeCookies("uid");
+        router.replace("/");
         wallet.reset();
     };
     useEffect(() => {
@@ -86,6 +48,7 @@ export const NavBar: React.FC = () => {
             auth.onAuthStateChanged(async (user) => {
                 console.log(user);
                 if (user) {
+                    setCookies("uid", user.uid);
                     setUserAuth({ ...user });
                 } else {
                     setUserAuth({ uid: "" });
@@ -155,9 +118,7 @@ export const NavBar: React.FC = () => {
                                     zIndex: -1,
                                 }}
                             >
-                                <NextLink href="/">
-                                    Funding🌱Fun
-                                </NextLink>
+                                <NextLink href="/">Funding🌱Fun</NextLink>
                             </Box>
                         </Heading>
                     </Flex>
@@ -168,17 +129,23 @@ export const NavBar: React.FC = () => {
                         spacing={6}
                         display={{ base: "flex", md: "flex" }}
                     >
-                        <Button
-                            fontSize={"md"}
-                            fontWeight={600}
-                            variant={"link"}
-                            color={useColorModeValue("green.400", "green.300")}
-                            display={{ base: "none", md: "inline-flex" }}
-                        >
-                            <NextLink href="/user">
-                                Profile
-                            </NextLink>
-                        </Button>
+                        {(wallet.status === "connected" || userAuth?.uid) && (
+                            <Button
+                                fontSize={"md"}
+                                fontWeight={600}
+                                variant={"link"}
+                                color={useColorModeValue(
+                                    "green.400",
+                                    "green.300",
+                                )}
+                                display={{
+                                    base: "none",
+                                    md: "inline-flex",
+                                }}
+                            >
+                                <NextLink href="/user">Profile</NextLink>
+                            </Button>
+                        )}
                         <Button
                             fontSize={"md"}
                             fontWeight={600}
@@ -232,9 +199,9 @@ export const NavBar: React.FC = () => {
                             aria-label="open Menu"
                             size="lg"
                             //mr={2}
-                            icon={<HamburgerIcon/>}
+                            icon={<HamburgerIcon />}
                             display={{ base: "flex", md: "none" }}
-                            onClick={() => changeDisplay('flex')}
+                            onClick={() => changeDisplay("flex")}
                         />
                         <Flex
                             //w="100vw"
@@ -251,7 +218,7 @@ export const NavBar: React.FC = () => {
                             right="0"
                             overflowY="auto"
                             flexDir="column"
-                            display={{ base:display, md: "none" }}
+                            display={{ base: display, md: "none" }}
                             shadow="lg"
                         >
                             <Flex justify="flex-end">
@@ -260,8 +227,8 @@ export const NavBar: React.FC = () => {
                                     //mt={2}
                                     //mr={2}
                                     size="lg"
-                                    icon={<CloseIcon/>}      
-                                    onClick={() => changeDisplay('none')}
+                                    icon={<CloseIcon />}
+                                    onClick={() => changeDisplay("none")}
                                 />
                             </Flex>
                             <Stack
@@ -276,33 +243,45 @@ export const NavBar: React.FC = () => {
                                     fontSize={"md"}
                                     fontWeight={600}
                                     variant={"link"}
-                                    color={useColorModeValue("green.400", "green.300")}
-                                    onClick={() => changeDisplay('none')}
-                                    display={{ base: "inline-flex", md: "none" }}
+                                    color={useColorModeValue(
+                                        "green.400",
+                                        "green.300",
+                                    )}
+                                    onClick={() => changeDisplay("none")}
+                                    display={{
+                                        base: "inline-flex",
+                                        md: "none",
+                                    }}
                                 >
-                                    <NextLink href="/user">
-                                        Profile
-                                    </NextLink>
+                                    <NextLink href="/user">Profile</NextLink>
                                 </Button>
                                 <Button
                                     fontSize={"md"}
                                     fontWeight={600}
                                     variant={"link"}
-                                    color={useColorModeValue("green.400", "green.300")}
-                                    display={{ base: "inline-flex", md: "none" }}
-                                    onClick={() => changeDisplay('none')}
+                                    color={useColorModeValue(
+                                        "green.400",
+                                        "green.300",
+                                    )}
+                                    display={{
+                                        base: "inline-flex",
+                                        md: "none",
+                                    }}
+                                    onClick={() => changeDisplay("none")}
                                 >
                                     <NextLink href="/campaign/new">
                                         Create Campaign
                                     </NextLink>
                                 </Button>
-                                {wallet.status === "connected" || userAuth?.uid ? (
+                                {wallet.status === "connected" ||
+                                userAuth?.uid ? (
                                     <Menu>
                                         <MenuButton
                                             as={Button}
                                             rightIcon={<ChevronDownIcon />}
                                         >
-                                            {userAuth?.uid?.slice(0, 10) + "..."}
+                                            {userAuth?.uid?.slice(0, 10) +
+                                                "..."}
                                         </MenuButton>
                                         <MenuList>
                                             <MenuItem onClick={signOutWallet}>
@@ -330,7 +309,7 @@ export const NavBar: React.FC = () => {
                                             //onClick={syncWallet}
                                             onClick={() => {
                                                 //changeDisplay('none')
-                                                syncWallet
+                                                syncWallet(wallet);
                                             }}
                                         >
                                             Connect Wallet{" "}

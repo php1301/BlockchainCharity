@@ -1,11 +1,15 @@
 import axios from "axios";
 // import queryString from "query-string";
 import { getAuth } from "firebase/auth";
-import { getCookie } from "cookies-next";
+import { getCookie, setCookies } from "cookies-next";
+import { firebaseClient } from "src/firebase";
 
 const getFirebaseToken = async () => {
-    const currentUser = getAuth().currentUser;
-    if (currentUser) return currentUser.getIdToken();
+    const currentUser = getAuth(firebaseClient).currentUser;
+    if (currentUser) {
+        const token = await currentUser.getIdToken();
+        setCookies("token", token);
+    }
 
     // Not logged in
     return null;
@@ -23,10 +27,9 @@ const axiosClient = axios.create({
 });
 
 axiosClient.interceptors.request.use(async (config) => {
-    const token = await getFirebaseToken();
-
+    await getFirebaseToken();
+    const token = getCookie("token")?.toString();
     if (token) {
-        console.log("token refresh", token);
         config.headers = {
             ...config.headers,
             Authorization: `Bearer ${token ? token : ""}`,

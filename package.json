@@ -11,7 +11,7 @@
         "build-storybook": "build-storybook",
         "svgr": "npx @svgr/cli -d src/components/icons --ignore-existing --icon --typescript public/icons",
         "build:analyze": "ANALYZE=true npm run build",
-        "lint": "eslint '**/*.{js,jsx,ts,tsx}'",
+        "lint": "eslint --rule \"@typescript-eslint/no-unused-vars: off\" \"**/*.{js,jsx,ts,tsx}\" --fix",
         "prettier": "prettier --write '**/*.{js,jsx,ts,tsx}'",
         "test": "jest -c test/jest.config.js",
         "cypress:open": "cypress open",

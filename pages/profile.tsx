@@ -1,92 +1,115 @@
-import React from 'react'
+import React, { useEffect, useState } from "react";
 import Head from "next/head";
-import { useEffect, useState } from "react";
-import NextLink from "next/link";
-import styles from "../src/styles/Home.module.css";
-import detectEthereumProvider from "@metamask/detect-provider";
-import { useMediaQuery } from '@chakra-ui/media-query';
-import { DiCodeigniter, DiAndroid, DiWebplatform, DiApple } from 'react-icons/di'
-import { CampaignCard } from 'pages';
+import { CampaignCard } from "pages";
 import {
     Heading,
-    useBreakpointValue,
-    useColorModeValue,
-    Text,
-    Button,
-    Flex,
     Container,
     SimpleGrid,
-    Box,
     Divider,
-    Skeleton,
-    Img,
-    Icon,
-    chakra,
-    Tooltip,
-    Link,
     SkeletonCircle,
     HStack,
-    Stack,
-    Progress,
+    Skeleton,
 } from "@chakra-ui/react";
-import { FaHandshake } from "react-icons/fa";
-import { FcShare, FcDonate, FcMoneyTransfer } from "react-icons/fc";
-import { Feature } from 'pages';
+import { getETHPrice } from "@libs/get-eth-price";
+import axiosClient from "src/framework/axios";
 // const [campaignList, setCampaignList] = useState([]);
 // const [ethPrice, updateEthPrice] = useState(null);
-function Profile(): JSX.Element {
-
-    const [isNotSmallerScreen] = useMediaQuery("(max-width:786px)");
-
-
+function Profile({ user }: any): JSX.Element {
+    const [campaignList, setCampaignList] = useState<any>([]);
+    const [ethPrice, updateEthPrice] = useState<any>(null);
+    async function getSummary() {
+        try {
+            const summary = await Promise.all(
+                user?.userCampaigns.map(async (campaign: any, i: any) => {
+                    const { summary }: any = await axiosClient.get(
+                        `/campaigns/get-campaign-summary/${user.userCampaigns[i]}`,
+                    );
+                    return summary;
+                }),
+            );
+            console.log(summary);
+            const ETHPrice = await getETHPrice();
+            updateEthPrice(ETHPrice);
+            console.log("summary ", summary);
+            setCampaignList(summary);
+            return summary;
+        } catch (e) {
+            console.log(e);
+        }
+    }
+    useEffect(() => {
+        console.log(user.userCampaigns);
+        getSummary();
+    }, []);
     return (
-                    <Container py={{ base: "4", md: "12" }} maxW={"7xl"}>
-                    <HStack spacing={2}>
-                        <SkeletonCircle size="4" />
-                        <Heading as="h2" size="lg">
-                            Campaigns
-                        </Heading>
-                    </HStack>
+        <>
+            <Head>
+                <title>Profile Page</title>
 
-                    <Divider marginTop="4" />
+                <meta
+                    name="description"
+                    content="Transparent Crowdfunding in Blockchain"
+                />
+                <link rel="icon" href="/logo.svg" />
+                <link
+                    rel="preconnect"
+                    href="https://fonts.googleapis.com"
+                ></link>
+                <link
+                    rel="preconnect"
+                    href="https://fonts.gstatic.com" /*crossorigin*/
+                ></link>
+                <link
+                    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
+                    rel="stylesheet"
+                ></link>
+            </Head>
+            <Container py={{ base: "4", md: "12" }} maxW={"7xl"}>
+                <HStack spacing={2}>
+                    <SkeletonCircle size="4" />
+                    <Heading as="h2" size="lg">
+                        Campaigns Created
+                    </Heading>
+                </HStack>
 
-                    
-                        <SimpleGrid
-                            columns={{ base: 1, md: 3 }}
-                            spacing={10}
-                            py={8}
-                        >
-                            
-                                {/* return ( */}
-                                    <div key={0}>
-                                        <CampaignCard
-                                            name={"aav"}
-                                            description={"avacs"}
-                                            creatorId={1}
-                                            imageURL={"https://scontent.fhan3-5.fna.fbcdn.net/v/t39.30808-1/272997112_3093238007631067_3491816514559914718_n.jpg?stp=dst-jpg_p240x240&_nc_cat=109&ccb=1-6&_nc_sid=7206a8&_nc_ohc=eDFg5xVHmOoAX-0nLQL&tn=QMG6IFJy_zklb8as&_nc_ht=scontent.fhan3-5.fna&oh=00_AT914uSKCW15aIDT9tgkn4tMNdw1eA0ifJoUpUzxk01xLQ&oe=627A5678"}
-                                            id={/*campaigns[i]*/ 0}
-                                            target={10}
-                                            balance={19}
-                                            ethPrice={0}
-                                        />
-                                    </div>
-                                {/* ); */}
-                           
-                        </SimpleGrid>
-                    {/* : (
-                        <SimpleGrid
-                            columns={{ base: 1, md: 3 }}
-                            spacing={10}
-                            py={8}
-                        >
-                            <Skeleton height="25rem" />
-                            <Skeleton height="25rem" />
-                            <Skeleton height="25rem" />
-                        </SimpleGrid>
-                    ) */}
-                </Container>
-
-    )
+                <Divider marginTop="4" />
+                {user?.userCampaigns.length > 0 ? (
+                    <SimpleGrid
+                        columns={{ base: 1, md: 3 }}
+                        spacing={10}
+                        py={8}
+                    >
+                        {campaignList.map((el: any, i: any) => {
+                            return (
+                                <div key={i}>
+                                    <CampaignCard
+                                        name={el[5]}
+                                        description={el[6]}
+                                        creatorId={el[4]}
+                                        imageURL={el[7]}
+                                        id={user?.userCampaigns[i]}
+                                        target={el[10]}
+                                        balance={el[1]}
+                                        ethPrice={ethPrice}
+                                    />
+                                </div>
+                            );
+                        })}
+                    </SimpleGrid>
+                ) : (
+                    <SimpleGrid
+                        columns={{ base: 1, md: 3 }}
+                        spacing={10}
+                        py={8}
+                    >
+                        <Skeleton height="25rem" />
+                        <Skeleton height="25rem" />
+                        <Skeleton height="25rem" />
+                    </SimpleGrid>
+                )}
+            </Container>
+        </>
+    );
 }
 
-export default Profile
+export default Profile;

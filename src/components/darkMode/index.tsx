@@ -12,15 +12,14 @@ export const DarkMode: React.FC<{}> = () => {
     const fetchUser = async () => {
         // const data = await axiosClient.get("/users/get-profile");
         // console.log(data);
-        const viewProfile = await axiosClient.get(
-            "/users/view-profile/0x4ddFf5E113FF403f193503c280DDf7723E53Ca11",
-        );
-        console.log("View profile", viewProfile);
-        const deployedCampaign = await axiosClient.get(
-            "/campaigns/get-deployed-campaigns",
-        );
-
-        console.log("deployedCampaign", deployedCampaign);
+        // const viewProfile = await axiosClient.get(
+        //     "/users/view-profile/0x4ddFf5E113FF403f193503c280DDf7723E53Ca11",
+        // );
+        // console.log("View profile", viewProfile);
+        // const deployedCampaign = await axiosClient.get(
+        //     "/campaigns/get-deployed-campaigns",
+        // );
+        // console.log("deployedCampaign", deployedCampaign);
     };
     return (
         <IconButton

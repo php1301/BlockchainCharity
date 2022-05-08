@@ -1,3 +1,4 @@
+import { setCookies } from "cookies-next";
 import { ethers } from "ethers";
 import axiosClient from "src/framework/axios";
 import { getAuth, signInWithCustomToken } from "firebase/auth";
@@ -43,8 +44,8 @@ export const syncWallet = async (wallet: any) => {
     const { token } = response;
     const auth = getAuth(firebaseClient);
     await signInWithCustomToken(auth, token);
-    // const user = auth.currentUser;
+    const uid = auth.currentUser?.uid;
     // await user?.reload();
-    // console.log(user);
+    setCookies("uid", uid);
     await wallet.connect("injected");
 };

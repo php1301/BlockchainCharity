@@ -35,10 +35,9 @@ import web3 from "@libs/web3";
 import { ComboBox } from "@components/comboBox";
 
 export async function getServerSideProps() {
-    const { list: deployedCampaigns }: any = await axiosClient.get(
-        "/campaigns/get-deployed-campaigns",
+    const { sorted: deployedCampaigns }: any = await axiosClient.get(
+        `/campaigns/get-deployed-campaigns/new`,
     );
-    console.log(deployedCampaigns);
     return {
         props: { campaigns: deployedCampaigns || [] },
     };
@@ -227,13 +226,15 @@ export const CampaignCard: React.FC<{
 
 export default function Home({ campaigns }: { campaigns: any }) {
     const [campaignList, setCampaignList] = useState<any>([]);
+    const [campaignAddreses, setCampaignAddreses] = useState<any>(campaigns);
     const [ethPrice, updateEthPrice] = useState<any>(null);
+    const [isLoading, setIsLoading] = useState(true);
     async function getSummary() {
         try {
             const summary = await Promise.all(
-                campaigns.map(async (campaign: any, i: any) => {
+                campaignAddreses.map(async (campaign: any, i: any) => {
                     const { summary }: any = await axiosClient.get(
-                        `/campaigns/get-campaign-summary/${campaigns[i]}`,
+                        `/campaigns/get-campaign-summary/${campaignAddreses[i]}`,
                     );
                     return summary;
                 }),
@@ -243,6 +244,7 @@ export default function Home({ campaigns }: { campaigns: any }) {
             updateEthPrice(ETHPrice);
             console.log("summary ", summary);
             setCampaignList(summary);
+            setIsLoading(false);
             return summary;
         } catch (e) {
             console.log(e);
@@ -262,8 +264,7 @@ export default function Home({ campaigns }: { campaigns: any }) {
 
     useEffect(() => {
         getSummary();
-    }, []);
-    console.log(campaignList);
+    }, [campaignAddreses]);
     return (
         <div>
             <Head>
@@ -286,7 +287,6 @@ export default function Home({ campaigns }: { campaigns: any }) {
                     href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
                     rel="stylesheet"
                 ></link>
-            
             </Head>
             <main className={styles.main}>
                 <Container
@@ -321,16 +321,13 @@ export default function Home({ campaigns }: { campaigns: any }) {
                     </NextLink>
                 </Container>
                 <Container py={{ base: "4", md: "12" }} maxW={"7xl"}>
-                    <HStack spacing={2}>
-                        <SkeletonCircle size="4" />
-                        <Heading as="h2" size="lg">
-                            Open Campaigns
-                        </Heading>
-                    </HStack>
-
+                    <ComboBox
+                        setCampaignAddreses={setCampaignAddreses}
+                        setIsLoading={setIsLoading}
+                    />
                     <Divider marginTop="4" />
 
-                    {campaignList.length > 0 ? (
+                    {!isLoading && campaignList.length > 0 ? (
                         <SimpleGrid
                             columns={{ base: 1, md: 3 }}
                             spacing={10}
@@ -365,10 +362,6 @@ export default function Home({ campaigns }: { campaigns: any }) {
                         </SimpleGrid>
                     )}
                 </Container>
-                <ComboBox 
-                    campaigns={campaignList}
-                    top10={"target"}
-                />
                 <Container
                     py={{ base: "4", md: "12" }}
                     maxW={"7xl"}

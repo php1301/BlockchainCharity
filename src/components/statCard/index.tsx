@@ -1,16 +1,18 @@
-import { 
+import {
     Flex,
-    Stat, 
-    StatLabel, 
-    Tooltip, 
+    Stat,
+    StatLabel,
+    Tooltip,
     useColorModeValue,
-    Box, 
-    StatNumber} from "@chakra-ui/react";
+    Box,
+    StatNumber,
+} from "@chakra-ui/react";
 
 export const StatCard: React.FC<{
-    title: string, 
-    stat: any, 
-    info: string}> = (props) => {
+    title: string;
+    stat: any;
+    info: string;
+}> = (props) => {
     return (
         <Stat
             px={{ base: 2, md: 4 }}
@@ -21,8 +23,8 @@ export const StatCard: React.FC<{
             rounded={"lg"}
             transition={"transform 0.3s ease"}
             _hover={{
-            transform: "translateY(-5px)",
-            }}    
+                transform: "translateY(-5px)",
+            }}
         >
             <Tooltip
                 label={props.info}
@@ -48,5 +50,5 @@ export const StatCard: React.FC<{
                 </Flex>
             </Tooltip>
         </Stat>
-    )
-}
+    );
+};

@@ -1,8 +1,6 @@
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/router";
-import React, { useState } from "react";
-import { useAsync } from "react-use";
-import { getETHPrice, getETHPriceInUSD } from "@libs/get-eth-price";
+import React, { useEffect, useState } from "react";
 import Head from "next/head";
 import {
     Alert,
@@ -10,101 +8,96 @@ import {
     AlertIcon,
     Box,
     FormControl,
-    FormHelperText,
     FormLabel,
     Heading,
     Input,
-    InputGroup,
-    InputRightAddon,
     Stack,
     Text,
     Textarea,
     useColorModeValue,
     Button,
 } from "@chakra-ui/react";
-import { ArrowBackIcon, DeleteIcon } from "@chakra-ui/icons";
+import { ArrowBackIcon } from "@chakra-ui/icons";
 import NextLinh from "next/link";
-import { useWallet } from "use-wallet";
-//import factory from "../../smart-contract/factory";
-//import web3 from "../../smart-contract/web3";
-
-//sua wallet, form submit, setTargetInUSD(Math.abs(e.target.value));setMinContriInUSD(Math.abs(e.target.value))
+import axiosClient from "src/framework/axios";
+import { getCookie } from "cookies-next";
 
 export default function NewCampaign() {
+    const [userData, setUserData] = useState({
+        lastName: "",
+        firstName: "",
+        bio: "",
+        avatar: "",
+        email: "",
+        phone: "",
+        youtubeUrl: "",
+        facebookUrl: "",
+        instagramUrl: "",
+    });
     const {
         handleSubmit,
         register,
-        formState: { isSubmitting, errors },
-    } = useForm({
-        mode: "onChange",
-    });
-
+        reset,
+        formState: { isSubmitting, errors, isSubmitted },
+    } = useForm({ defaultValues: userData, mode: "onChange" });
+    useEffect(() => {
+        const fetchUserData = async () => {
+            const { user }: any = await axiosClient.get("/users/get-profile");
+            reset(user.user);
+            setUserData(user);
+        };
+        fetchUserData();
+    }, []);
+    console.log(userData);
     const router = useRouter();
     const [error, setError] = useState("");
-    const wallet = useWallet();
-    const [minContriInUSD, setMinContriInUSD] = useState<number>();
-    const [targetInUSD, setTargetInUSD] = useState<number>();
-    const [ETHPrice, setETHPrice] = useState(0);
-    const [roadmaps, setRoadmaps] = useState([
-        { name: '', phone: '', description: '', avatar: '', youtube: '', facebook: '' },
-    ])
-
-    useAsync(async () => {
-        try {
-            const result: any = await getETHPrice();
-            setETHPrice(result);
-        } catch (error) {
-            console.log(error);
-        }
-    }, []);
 
     async function onSubmit(data: any) {
         console.log(
-            data.name,
+            data.firstName,
+            data.lastName,
+            data.email,
             data.phone,
-            data.description,
-            data.avatarUrl,
-            data.youtubeURL,
-            data.facebookURL,
-            data.twitterURL,
+            data.bio,
+            data.avatar,
+            data.youtubeUrl,
+            data.facebookUrl,
+            data.instagramUrl,
         );
-        // try {
-        //     const accounts = await web3.eth.getAccounts();
-        //     await factory.methods
-        //         .createCampaign(
-        //             web3.utils.toWei(data.minimumContribution, "ether"),
-        //             data.campaignName,
-        //             data.description,
-        //             data.imageUrl,
-        //             web3.utils.toWei(data.target, "ether"),
-        //         )
-        //         .send({
-        //             from: accounts[0],
-        //         });
-
-        //     router.push("/");
-        // } catch (err) {
-        //     setError(err.message);
-        //     console.log(err);
-        // }
+        try {
+            setError("");
+            const res = await axiosClient.put("/users/update-user-profile", {
+                firstName: data.firstName,
+                lastName: data.lastName,
+                email: data.email,
+                phone: data.phone,
+                bio: data.bio,
+                avatar: data.avatar || "https://picsum.photos/100/200",
+                youtubeUrl: data.youtubeUrl,
+                facebookUrl: data.facebookUrl,
+                instagramUrl: data.instagramUrl,
+            });
+            console.log(res);
+        } catch (err) {
+            setError((err as any).message);
+            console.log(err);
+        }
     }
     return (
         <div>
             <Head>
-                <title>New Campaign</title>
-                <meta name="description" content="Create New Campaign" />
+                <title>Update Profile</title>
+                <meta name="description" content="Update User Profile" />
                 <link rel="icon" href="/logo.svg" />
             </Head>
             <main>
                 <Stack spacing={8} mx={"auto"} maxW={"2xl"} py={12} px={6}>
                     <Text fontSize={"lg"} color={"green.400"}>
                         <ArrowBackIcon mr={2} />
-                        <NextLinh href="/">Back to Home</NextLinh>
+                        <NextLinh href="/user">Back to Profile</NextLinh>
                     </Text>
                     <Stack>
-                        <Heading fontSize={"4xl"}>
-                            Edit profile 📋
-                        </Heading>
+                        <Heading fontSize={"4xl"}>Edit profile 📋</Heading>
                     </Stack>
                     <Box
                         rounded={"lg"}
@@ -114,44 +107,60 @@ export default function NewCampaign() {
                     >
                         <form onSubmit={handleSubmit(onSubmit)}>
                             <Stack spacing={4}>
-                                <FormControl id="name">
-                                    <FormLabel>
-                                        Your name
-                                    </FormLabel>
+                                <FormControl id="firstName">
+                                    <FormLabel>Your First Name</FormLabel>
                                     <Input
-                                        {...register("name", {
-                                            required: true,
+                                        {...register("firstName", {
+                                            required: false,
+                                        })}
+                                        isDisabled={isSubmitting}
+                                    />
+                                </FormControl>
+                                <FormControl id="lastName">
+                                    <FormLabel>Your Last Name</FormLabel>
+                                    <Input
+                                        {...register("lastName", {
+                                            required: false,
                                         })}
                                         isDisabled={isSubmitting}
                                     />
                                 </FormControl>
                                 <FormControl id="phone">
-                                    <FormLabel>
-                                        Your phone number
-                                    </FormLabel>
+                                    <FormLabel>Your phone number</FormLabel>
                                     <Input
                                         type="number"
                                         step="any"
                                         {...register("phone", {
-                                            required: true,
+                                            required: false,
                                         })}
                                         isDisabled={isSubmitting}
                                     />
                                 </FormControl>
-                                <FormControl id="description">
+                                <FormControl id="email">
+                                    <FormLabel>Your email</FormLabel>
+                                    <Input
+                                        type="email"
+                                        step="any"
+                                        {...register("email", {
+                                            required: false,
+                                        })}
+                                        isDisabled={isSubmitting}
+                                    />
+                                </FormControl>
+                                <FormControl id="bio">
                                     <FormLabel>Description</FormLabel>
                                     <Textarea
-                                        {...register("description", {
-                                            required: true,
+                                        {...register("bio", {
+                                            required: false,
                                         })}
                                         isDisabled={isSubmitting}
                                     />
                                 </FormControl>
-                                <FormControl id="avatarUrl">
+                                <FormControl id="avatar">
                                     <FormLabel>Your avatar URL</FormLabel>
                                     <Input
-                                        {...register("avatarUrl", {
-                                            required: true,
+                                        {...register("avatar", {
+                                            required: false,
                                         })}
                                         isDisabled={isSubmitting}
                                         type="url"
@@ -161,7 +170,7 @@ export default function NewCampaign() {
                                     <FormLabel>Your Youtube URL</FormLabel>
                                     <Input
                                         {...register("youtubeUrl", {
-                                            required: true,
+                                            required: false,
                                         })}
                                         isDisabled={isSubmitting}
                                         type="url"
@@ -171,17 +180,17 @@ export default function NewCampaign() {
                                     <FormLabel>Your Facebook URL</FormLabel>
                                     <Input
                                         {...register("facebookUrl", {
-                                            required: true,
+                                            required: false,
                                         })}
                                         isDisabled={isSubmitting}
                                         type="url"
                                     />
                                 </FormControl>
-                                <FormControl id="facebookUrl">
-                                    <FormLabel>Your Twitter URL</FormLabel>
+                                <FormControl id="instagramUrl">
+                                    <FormLabel>Your Instagram URL</FormLabel>
                                     <Input
-                                        {...register("twitterUrl", {
-                                            required: true,
+                                        {...register("instagramUrl", {
+                                            required: false,
                                         })}
                                         isDisabled={isSubmitting}
                                         type="url"
@@ -200,28 +209,39 @@ export default function NewCampaign() {
                                         Done
                                     </Button>
                                     {error ? (
-                                    <Alert status="error">
-                                        <AlertIcon />
-                                        <AlertDescription mr={2}>
-                                            {error}
-                                        </AlertDescription>
-                                    </Alert>
-                                ) : null}
-                                {errors.name ||
-                                errors.phone ||
-                                errors.description ||
-                                errors.avatarUrl ||
-                                errors.youtubeUrl ||
-                                errors.twitterUrl ||
-                                errors.facbookUrl ? (
-                                    <Alert status="error">
-                                        <AlertIcon />
-                                        <AlertDescription mr={2}>
-                                            {" "}
-                                            All Fields are Required
-                                        </AlertDescription>
-                                    </Alert>
-                                ) : null}
+                                        <Alert status="error">
+                                            <AlertIcon />
+                                            <AlertDescription mr={2}>
+                                                {error}
+                                            </AlertDescription>
+                                        </Alert>
+                                    ) : null}
+                                    {errors.firstName ||
+                                    errors.lastName ||
+                                    errors.phone ||
+                                    errors.email ||
+                                    errors.bio ||
+                                    errors.avatar ||
+                                    errors.youtubeUrl ||
+                                    errors.instagramUrl ||
+                                    errors.facbookUrl ? (
+                                        <Alert status="error">
+                                            <AlertIcon />
+                                            <AlertDescription mr={2}>
+                                                {" "}
+                                                All Fields are Required
+                                            </AlertDescription>
+                                        </Alert>
+                                    ) : null}
+                                    {isSubmitted ? (
+                                        <Alert status="success" mt="2">
+                                            <AlertIcon />
+                                            <AlertDescription mr={2}>
+                                                {" "}
+                                                Profile Updated Successfully!!
+                                            </AlertDescription>
+                                        </Alert>
+                                    ) : null}
                                 </Stack>
                             </Stack>
                         </form>
@@ -229,6 +249,18 @@ export default function NewCampaign() {
                 </Stack>
             </main>
         </div>
-    )
+    );
 }
-
+export async function getServerSideProps({ req, res }: any) {
+    const uid = getCookie("uid", { req, res })?.toString();
+    console.log(uid);
+    if (!uid) {
+        return {
+            redirect: {
+                destination: "/",
+                permanent: false,
+            },
+        };
+    }
+    return { props: {} };
+}

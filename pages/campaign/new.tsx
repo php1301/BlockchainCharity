@@ -53,8 +53,8 @@ export default function NewCampaign() {
     const [targetInUSD, setTargetInUSD] = useState<number>();
     const [ETHPrice, setETHPrice] = useState(0);
     const [roadmaps, setRoadmaps] = useState([
-        {name: '', date: '', description: ''},
-    ])
+        { name: "", date: "", description: "" },
+    ]);
 
     useAsync(async () => {
         try {
@@ -82,6 +82,7 @@ export default function NewCampaign() {
             data.description,
             data.imageUrl,
             data.target,
+            roadmaps,
         );
         try {
             // const accounts = await web3.eth.getAccounts();
@@ -110,8 +111,7 @@ export default function NewCampaign() {
                     minimumContribution: data.minimumContribution,
                     campaignName: data.campaignName,
                     description: data.description,
-                    // imageUrl: data.imageUrl,
-                    imageUrl: "https://picsum.photos/200/300",
+                    imageUrl: data.imageUrl || "https://picsum.photos/200/300",
                     target: data.target,
                     walletAddr: accounts,
                     date: today,
@@ -147,7 +147,7 @@ export default function NewCampaign() {
                     campaignId,
                     txHash: final,
                     date: today,
-                    roadmap: [],
+                    roadmap: roadmaps || [],
                     timestamp,
                 },
             );
@@ -243,7 +243,7 @@ export default function NewCampaign() {
                                     <FormLabel>Image URL</FormLabel>
                                     <Input
                                         {...register("imageUrl", {
-                                            required: true,
+                                            required: false,
                                         })}
                                         isDisabled={isSubmitting}
                                         type="url"
@@ -282,68 +282,112 @@ export default function NewCampaign() {
                                     ) : null}
                                 </FormControl>
                                 <Text>Roadmap:</Text>
-                                
+
                                 {roadmaps.map((roadmap, index) => {
                                     return (
                                         <div>
                                             <Box
                                                 rounded={"lg"}
-                                                bg={useColorModeValue("white", "gray.700")}
+                                                bg={useColorModeValue(
+                                                    "white",
+                                                    "gray.700",
+                                                )}
                                                 boxShadow={"lg"}
                                                 p={8}
                                             >
-                                                <FormControl id="roadmap" px={4}>
-                                                    <Text p={0}>Roadmap {index + 1}:</Text>
-                                                <FormLabel>Name</FormLabel>
-                                                <Input
-                                                    value={roadmap.name}
-                                                    onChange={(event:any) => {
-                                                        const value = [...roadmaps];
-                                                        value[index].name = event.target.value;
-                                                        setRoadmaps(value)
-                                                    }}
-                                                />
-                                                <FormLabel>Date</FormLabel>
-                                                <Input
-                                                    value={roadmap.date}
-                                                    onChange={(event:any) => {
-                                                        const value = [...roadmaps];
-                                                        value[index].date = event.target.value;
-                                                        setRoadmaps(value)
-                                                    }}
-                                                />
-                                                <FormLabel>Description</FormLabel>
-                                                <Input
-                                                    value={roadmap.description}
-                                                    onChange={(event:any) => {
-                                                        const value = [...roadmaps];
-                                                        value[index].description = event.target.value;
-                                                        setRoadmaps(value)
-                                                    }}
-                                                />
-                                                <DeleteIcon 
+                                                <FormControl
+                                                    id="roadmap"
+                                                    px={4}
+                                                >
+                                                    <Text p={0}>
+                                                        Roadmap {index + 1}:
+                                                    </Text>
+                                                    <FormLabel>Name</FormLabel>
+                                                    <Input
+                                                        value={roadmap.name}
+                                                        onChange={(
+                                                            event: any,
+                                                        ) => {
+                                                            const value = [
+                                                                ...roadmaps,
+                                                            ];
+                                                            value[index].name =
+                                                                event.target.value;
+                                                            setRoadmaps(value);
+                                                        }}
+                                                    />
+                                                    <FormLabel>Date</FormLabel>
+                                                    <Input
+                                                        type="date"
+                                                        value={roadmap.date}
+                                                        onChange={(
+                                                            event: any,
+                                                        ) => {
+                                                            const value = [
+                                                                ...roadmaps,
+                                                            ];
+                                                            value[index].date =
+                                                                event.target.value;
+                                                            setRoadmaps(value);
+                                                        }}
+                                                    />
+                                                    <FormLabel>
+                                                        Description
+                                                    </FormLabel>
+                                                    <Input
+                                                        value={
+                                                            roadmap.description
+                                                        }
+                                                        onChange={(
+                                                            event: any,
+                                                        ) => {
+                                                            const value = [
+                                                                ...roadmaps,
+                                                            ];
+                                                            value[
+                                                                index
+                                                            ].description =
+                                                                event.target.value;
+                                                            setRoadmaps(value);
+                                                        }}
+                                                    />
+                                                    <DeleteIcon
                                                         color={"teal.400"}
                                                         _hover={{
-                                                            cursor:"pointer"
+                                                            cursor: "pointer",
                                                         }}
                                                         onClick={() => {
-                                                            const value = [...roadmaps]
-                                                            value.splice(index, 1);
-                                                            setRoadmaps(value)
+                                                            const value = [
+                                                                ...roadmaps,
+                                                            ];
+                                                            value.splice(
+                                                                index,
+                                                                1,
+                                                            );
+                                                            setRoadmaps(value);
                                                         }}
-                                                />
+                                                    />
                                                 </FormControl>
                                             </Box>
                                         </div>
-                                    )                                
+                                    );
                                 })}
-                                <Button 
+                                <Button
                                     color={"white"}
                                     bg={"teal.400"}
                                     _hover={{
                                         bg: "teal.300",
                                     }}
-                                    onClick={() => setRoadmaps([...roadmaps, {name: '', date: '', description: ''}])}
+                                    onClick={() =>
+                                        setRoadmaps([
+                                            ...roadmaps,
+                                            {
+                                                name: "",
+                                                date: "",
+                                                description: "",
+                                            },
+                                        ])
+                                    }
                                 >
                                     Add new roadmap
                                 </Button>

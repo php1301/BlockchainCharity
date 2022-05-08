@@ -1,6 +1,6 @@
 import React from "react";
 import styles from "../src/styles/Home.module.css";
-import { setCookies } from 'cookies-next';
+import { setCookies } from "cookies-next";
 
 export default function ChangeApi() {
     const onSubmit = (e) => {
