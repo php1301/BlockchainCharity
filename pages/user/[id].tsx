@@ -2,9 +2,9 @@ import { VStack } from "@chakra-ui/layout";
 import { Skeleton, SimpleGrid } from "@chakra-ui/react";
 import { getETHPrice } from "@libs/get-eth-price";
 
-import Header from "pages/header";
-import Profile from "pages/profile";
-import Social from "pages/social";
+import Header from "@components/header";
+import Profile from "@components/profile";
+import Social from "@components/social";
 import { useEffect, useState } from "react";
 import axiosClient from "src/framework/axios";
 

@@ -4,9 +4,9 @@ import { getETHPrice } from "@libs/get-eth-price";
 import { getCookie } from "cookies-next";
 import { useEffect, useState } from "react";
 import axiosClient from "src/framework/axios";
-import Header from "./header";
-import Profile from "./profile";
-import Social from "./social";
+import Header from "../src/components/header";
+import Profile from "../src/components/profile";
+import Social from "../src/components/social";
 
 function App({ ETHPrice }: any) {
     const [userData, setUserData] = useState(null);
