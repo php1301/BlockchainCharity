@@ -37,6 +37,12 @@
       "@styles": [
         "src/styles"
       ],
+      "@libs": [
+        "src/libs"
+      ],
+      "@libs/*": [
+        "src/libs/*"
+      ],
       "@components/icons/*": [
         "src/components/icons/*"
       ],
