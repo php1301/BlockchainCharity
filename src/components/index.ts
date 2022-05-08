@@ -1,4 +1,4 @@
-export { Header } from "./header";
+export { Header } from "./header/index";
 export { Logo } from "./logo";
 //export { Main } from "./main";
 export { Cards } from "./cards";
