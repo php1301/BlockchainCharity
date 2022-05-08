@@ -8,7 +8,7 @@ import Header from "./header";
 import Profile from "./profile";
 import Social from "./social";
 
-function App({ ETHPrice }) {
+function App({ ETHPrice }: any) {
     const [userData, setUserData] = useState(null);
     useEffect(() => {
         const fetchUserData = async () => {

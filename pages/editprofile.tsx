@@ -220,7 +220,7 @@ export default function NewCampaign() {
                                     errors.avatar ||
                                     errors.youtubeUrl ||
                                     errors.instagramUrl ||
-                                    errors.facbookUrl ? (
+                                    errors.facebookUrl ? (
                                         <Alert status="error">
                                             <AlertIcon />
                                             <AlertDescription mr={2}>

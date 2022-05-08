@@ -12,7 +12,7 @@ export const getETHPrice = async () => {
     }
 };
 
-export const getWEIPriceInUSD = (usd: number, wei: number) => {
+export const getWEIPriceInUSD = (usd: any, wei: number) => {
     const res = convertWeiToETH(wei) * parseFloat(usd);
     return res.toFixed(2);
 };
