@@ -239,10 +239,8 @@ export default function Home({ campaigns }: { campaigns: any }) {
                     return summary;
                 }),
             );
-            console.log(summary);
             const ETHPrice = await getETHPrice();
             updateEthPrice(ETHPrice);
-            console.log("summary ", summary);
             setCampaignList(summary);
             setIsLoading(false);
             return summary;

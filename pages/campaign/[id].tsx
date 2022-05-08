@@ -201,7 +201,6 @@ const CampaignSingle: React.FC<PropsCampaignSingle> = ({
     const wallet = useWallet();
     const router = useRouter();
     const { width, height } = useWindowSize();
-    console.log("roadmap", roadmap);
     const [roadmaps, setRoadmaps] = useState(
         roadmap || [
             {
@@ -240,7 +239,6 @@ const CampaignSingle: React.FC<PropsCampaignSingle> = ({
                 method: "eth_sendTransaction",
                 params: [res],
             });
-            console.log(final);
             const { docs }: any = await axiosClient.post(
                 "/campaigns/contribute-campaign-fb",
                 {
@@ -249,7 +247,6 @@ const CampaignSingle: React.FC<PropsCampaignSingle> = ({
                     address: id,
                 },
             );
-            console.log(docs);
             setAmountInUSD(null);
             reset(
                 {},
@@ -279,10 +276,11 @@ const CampaignSingle: React.FC<PropsCampaignSingle> = ({
     useEffect(() => {
         const authenticateUser = async () => {
             const auth = getAuth(firebaseClient);
-            console.log(auth);
             auth.onAuthStateChanged(async (user) => {
-                console.log(user);
-                await wallet.connect("injected");
+                if (user) await wallet.connect("injected");
+                else {
+                    wallet.reset();
+                }
             });
         };
         authenticateUser();
@@ -405,7 +403,7 @@ const CampaignSingle: React.FC<PropsCampaignSingle> = ({
                                         }
                                     />
                                     <StatCard
-                                        title={"Number of Approvers"}
+                                        title={"Number of Contributors"}
                                         stat={approversCount}
                                         info={
                                             "Number of people who have already donated to this campaign"
@@ -431,7 +429,7 @@ const CampaignSingle: React.FC<PropsCampaignSingle> = ({
                                             spacing={10}
                                             py={8}
                                         >
-                                            {roadmaps.map((el, i) => {
+                                            {roadmaps.map((el: any, i: any) => {
                                                 return (
                                                     <div key={i}>
                                                         <CampaignCard

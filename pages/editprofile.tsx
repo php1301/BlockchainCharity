@@ -1,5 +1,4 @@
 import { useForm } from "react-hook-form";
-import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import Head from "next/head";
 import {
@@ -48,8 +47,6 @@ export default function NewCampaign() {
         };
         fetchUserData();
     }, []);
-    console.log(userData);
-    const router = useRouter();
     const [error, setError] = useState("");
 
     async function onSubmit(data: any) {
@@ -77,7 +74,6 @@ export default function NewCampaign() {
                 facebookUrl: data.facebookUrl,
                 instagramUrl: data.instagramUrl,
             });
-            console.log(res);
         } catch (err) {
             setError((err as any).message);
             console.log(err);

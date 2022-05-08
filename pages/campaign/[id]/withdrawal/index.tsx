@@ -122,12 +122,10 @@ const RequestRow: React.FC<{
                     campaignId,
                 },
             );
-            console.log(txParams);
             const final = await (window as any)?.ethereum.request({
                 method: "eth_sendTransaction",
                 params: [txParams],
             });
-            console.log(final);
             const receipt = await waitTransaction(web3, final, {
                 interval: 500,
                 blocksToWait: 1,
@@ -142,7 +140,6 @@ const RequestRow: React.FC<{
                         campaignId,
                     },
                 );
-                console.log(docs);
                 await getRequests();
                 // router.reload();
             }
@@ -171,12 +168,10 @@ const RequestRow: React.FC<{
                     campaignId,
                 },
             );
-            console.log(txParams);
             const final = await (window as any)?.ethereum.request({
                 method: "eth_sendTransaction",
                 params: [txParams],
             });
-            console.log(final);
             const receipt = await waitTransaction(web3, final, {
                 interval: 500,
                 blocksToWait: 1,
@@ -190,7 +185,6 @@ const RequestRow: React.FC<{
                         campaignId,
                     },
                 );
-                console.log(docs);
                 await getRequests();
                 // router.reload();
             }
@@ -373,10 +367,11 @@ export default function Withdrawal({
     useEffect(() => {
         const authenticateUser = async () => {
             const auth = getAuth(firebaseClient);
-            console.log(auth);
             auth.onAuthStateChanged(async (user) => {
-                console.log(user);
-                await wallet.connect("injected");
+                if (user) await wallet.connect("injected");
+                else {
+                    wallet.reset();
+                }
             });
         };
         authenticateUser();
@@ -387,7 +382,6 @@ export default function Withdrawal({
                 `/campaigns/get-campaign-requests/${campaignId}/1`,
             );
 
-            console.log("requests", requests);
             setRequestsList(requests);
             setIsLoading(false);
             return requests;

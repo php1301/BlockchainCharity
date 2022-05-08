@@ -27,7 +27,6 @@ export const syncWallet = async (wallet: any) => {
     const { nonce } = response;
     const hexedNonce = toHex(nonce);
     const signature = await signer.signMessage(hexedNonce);
-    console.log(`signature`, signature);
     response = await axiosClient.post<any>(
         "/auth/wallet",
         {

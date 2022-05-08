@@ -16,10 +16,9 @@ const getFirebaseToken = async () => {
 };
 
 // Set up default config for http requests here
-const baseUrl = getCookie("base")?.toString() || "https://b654-113-177-113-150.ngrok.io/dev";
 // Please have a look at here `https://github.com/axios/axios#request- config` for the full list of configs
 const axiosClient = axios.create({
-    baseURL: baseUrl,
+    baseURL: getCookie("base")?.toString() || "http://localhost:3000/dev",
     headers: {
         "content-type": "application/json",
     },

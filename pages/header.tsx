@@ -3,15 +3,19 @@ import { useColorMode } from "@chakra-ui/color-mode";
 import { Image } from "@chakra-ui/image";
 import { Stack, Circle, Flex, Box, Text } from "@chakra-ui/layout";
 import { useMediaQuery } from "@chakra-ui/media-query";
-import { SimpleGrid } from "@chakra-ui/react"
+import { SimpleGrid, Link } from "@chakra-ui/react";
 import { StatCard } from "@components/statCard";
 import React from "react";
 import NextLink from "next/link";
+import { ExternalLinkIcon } from "@chakra-ui/icons";
+import { getETHPriceInUSD } from "@libs/get-eth-price";
 
 function Header({
     allowUpdate = true,
     user,
+    ETHPrice,
 }: {
+    ETHPrice: any;
     user: any;
     allowUpdate?: boolean;
 }) {
@@ -20,9 +24,8 @@ function Header({
 
     const [isNotSmallerScreen] = useMediaQuery("(max-width:786px)");
     //console.log("hihi")
-    console.log(allowUpdate);
     console.log(isNotSmallerScreen);
-   
+
     return (
         <Stack
             py={{ base: "1", md: "12" }}
@@ -63,38 +66,47 @@ function Header({
                             " Main responsibilities: Writing SRS for website, designing UI/UX for website, front-end coding"}
                     </Text>
                     <Text color={isDark ? "gray.200" : "gray.500"}>
-                        Phone Number: {user?.user?.phone ||
-                            " Phone Number"}
+                        Phone Number: {user?.user?.phone || " Not provided"}
                     </Text>
-                    <Box 
-                        mx={"0"}
-                        my={5}
-                        w={"70%"}
-                    >     
-                        <SimpleGrid
-                            columns={{ base: 1 }}
-                            spacing={{ base: 5 }}
-                        >
+                    <Text color={isDark ? "gray.200" : "gray.500"}>
+                        Email: {user?.user?.email || " Not provided"}
+                    </Text>
+                    <Text color={isDark ? "gray.200" : "gray.500"}>
+                        Wallet address:{" "}
+                        {user?.user?.walletAddress ? (
+                            <Link
+                                color="teal.500"
+                                href={`https://rinkeby.etherscan.io/address/${user?.user?.walletAddress}`}
+                                isExternal
+                            >
+                                {user?.user?.walletAddress}
+                                <ExternalLinkIcon mx="2px" />
+                            </Link>
+                        ) : (
+                            "Not provided"
+                        )}
+                    </Text>
+                    <Box mx={"0"} my={5} w={"70%"}>
+                        <SimpleGrid columns={{ base: 1 }} spacing={{ base: 5 }}>
                             <StatCard
                                 title={"Number of Campaigns"}
-                                stat={"10"}
-                                info={
-                                    ""
-                                }
+                                stat={user?.numberOfCampaigns}
+                                info={""}
                             />
                             <StatCard
-                                title={"Total Donations"}
-                                stat={"10"}
-                                info={
-                                    ""
-                                }
+                                title={"Total Donations Received in ETH"}
+                                stat={`${user?.totalDonationReceived} -
+                                    ${getETHPriceInUSD(
+                                        ETHPrice,
+                                        user?.totalDonationReceived,
+                                    )} $
+                                    `}
+                                info={""}
                             />
                             <StatCard
                                 title={"Total requests finalized"}
-                                stat={"10"}
-                                info={
-                                    ""
-                                }
+                                stat={user?.finalizeRate + "%"}
+                                info={""}
                             />
                         </SimpleGrid>
                     </Box>

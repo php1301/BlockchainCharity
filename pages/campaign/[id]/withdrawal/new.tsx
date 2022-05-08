@@ -106,12 +106,10 @@ export default function NewWithdrawal({
                     recipient: data?.recipient,
                 },
             );
-            console.log(txParams);
             const final = await (window as any)?.ethereum.request({
                 method: "eth_sendTransaction",
                 params: [txParams],
             });
-            console.log(final);
             const { docs }: any = await axiosClient.post(
                 "/campaigns/create-withdraw-request-fb",
                 {
@@ -123,7 +121,6 @@ export default function NewWithdrawal({
                     txHash: final,
                 },
             );
-            console.log(docs);
             router.push(`/campaign/${id}/withdrawal`);
         } catch (err) {
             setError((err as any).message);
@@ -134,10 +131,11 @@ export default function NewWithdrawal({
     useEffect(() => {
         const authenticateUser = async () => {
             const auth = getAuth(firebaseClient);
-            console.log(auth);
             auth.onAuthStateChanged(async (user) => {
-                console.log(user);
-                await wallet.connect("injected");
+                if (user) await wallet.connect("injected");
+                else {
+                    wallet.reset();
+                }
             });
         };
         authenticateUser();

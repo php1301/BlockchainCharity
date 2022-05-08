@@ -7,7 +7,6 @@ import {
     Container,
     Stack,
     Button,
-    useColorMode,
     Menu,
     MenuButton,
     MenuList,
@@ -28,7 +27,6 @@ export const NavBar: React.FC = () => {
     //sua lai connect wallet
     const wallet = useWallet();
     const router = useRouter();
-    const { colorMode, toggleColorMode } = useColorMode();
     const [userAuth, setUserAuth] = useState<{ uid: string; [x: string]: any }>(
         { uid: "" },
     );
@@ -38,20 +36,19 @@ export const NavBar: React.FC = () => {
         const auth = getAuth();
         signOut(auth);
         removeCookies("uid");
-        router.replace("/");
         wallet.reset();
+        setUserAuth({ uid: "" });
+        router.reload();
     };
     useEffect(() => {
         const authenticateUser = async () => {
             const auth = getAuth(firebaseClient);
-            console.log(auth);
             auth.onAuthStateChanged(async (user) => {
-                console.log(user);
                 if (user) {
                     setCookies("uid", user.uid);
                     setUserAuth({ ...user });
                 } else {
-                    setUserAuth({ uid: "" });
+                    wallet.reset();
                 }
             });
         };
@@ -197,7 +194,8 @@ export const NavBar: React.FC = () => {
                         <DarkMode />
                         <IconButton
                             aria-label="open Menu"
-                            size="lg"
+                            w="40px"
+                            h="40px"
                             //mr={2}
                             icon={<HamburgerIcon />}
                             display={{ base: "flex", md: "none" }}
@@ -239,22 +237,27 @@ export const NavBar: React.FC = () => {
                                 display={{ base: "flex", md: "flex" }}
                                 align="center"
                             >
-                                <Button
-                                    fontSize={"md"}
-                                    fontWeight={600}
-                                    variant={"link"}
-                                    color={useColorModeValue(
-                                        "green.400",
-                                        "green.300",
-                                    )}
-                                    onClick={() => changeDisplay("none")}
-                                    display={{
-                                        base: "inline-flex",
-                                        md: "none",
-                                    }}
-                                >
-                                    <NextLink href="/user">Profile</NextLink>
-                                </Button>
+                                {(wallet.status === "connected" ||
+                                    userAuth?.uid) && (
+                                    <Button
+                                        fontSize={"md"}
+                                        fontWeight={600}
+                                        variant={"link"}
+                                        color={useColorModeValue(
+                                            "green.400",
+                                            "green.300",
+                                        )}
+                                        onClick={() => changeDisplay("none")}
+                                        display={{
+                                            base: "inline-flex",
+                                            md: "none",
+                                        }}
+                                    >
+                                        <NextLink href="/user">
+                                            Profile
+                                        </NextLink>
+                                    </Button>
+                                )}
                                 <Button
                                     fontSize={"md"}
                                     fontWeight={600}

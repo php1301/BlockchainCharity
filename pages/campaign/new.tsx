@@ -67,10 +67,11 @@ export default function NewCampaign() {
     useEffect(() => {
         const authenticateUser = async () => {
             const auth = getAuth(firebaseClient);
-            console.log(auth);
             auth.onAuthStateChanged(async (user) => {
-                console.log(user);
-                await wallet.connect("injected");
+                if (user) await wallet.connect("injected");
+                else {
+                    wallet.reset();
+                }
             });
         };
         authenticateUser();
@@ -121,19 +122,16 @@ export default function NewCampaign() {
                 method: "eth_sendTransaction",
                 params: [res],
             });
-            console.log(final);
             // const receipt = await web3.eth.getTransactionReceipt(final);
             // console.log(receipt);
             const receipt = await waitTransaction(web3, final, {
                 interval: 500,
                 blocksToWait: 1,
             });
-            console.log(receipt);
             const campaignId = web3.eth.abi.decodeParameters(
                 ["address"],
                 receipt?.logs[0]?.data,
             )["0"];
-            console.log(campaignId);
             const { docs }: any = await axiosClient.post(
                 "/campaigns/create-campaign-fb",
                 {
@@ -151,7 +149,6 @@ export default function NewCampaign() {
                     timestamp,
                 },
             );
-            console.log(docs);
             router.push(`/campaign/${campaignId}`);
         } catch (err) {
             setError((err as any).message);

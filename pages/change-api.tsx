@@ -3,11 +3,10 @@ import styles from "../src/styles/Home.module.css";
 import { setCookies } from "cookies-next";
 
 export default function ChangeApi() {
-    const onSubmit = (e) => {
+    const onSubmit = (e: any) => {
         e.preventDefault();
         const value = (document.getElementsByName("change-api")[0] as any)
             .value;
-        console.log(value);
         setCookies("base", value);
     };
     return (

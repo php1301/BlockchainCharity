@@ -27,10 +27,8 @@ function Profile({ user }: any): JSX.Element {
                     return summary;
                 }),
             );
-            console.log(summary);
             const ETHPrice = await getETHPrice();
             updateEthPrice(ETHPrice);
-            console.log("summary ", summary);
             setCampaignList(summary);
             return summary;
         } catch (e) {
@@ -38,7 +36,6 @@ function Profile({ user }: any): JSX.Element {
         }
     }
     useEffect(() => {
-        console.log(user.userCampaigns);
         getSummary();
     }, []);
     return (

@@ -35,10 +35,11 @@ export const StatCard: React.FC<{
             >
                 <Flex justifyContent={"space-between"}>
                     <Box pl={{ base: 2, md: 4 }}>
-                        <StatLabel 
-                            fontWeight={"medium"} isTruncated
-                            maxW={{ base: "	5rem", sm: "sm" }
-                        }>
+                        <StatLabel
+                            fontWeight={"medium"}
+                            isTruncated
+                            maxW={{ base: "	5rem", sm: "sm" }}
+                        >
                             {props.title}
                         </StatLabel>
                         <StatNumber

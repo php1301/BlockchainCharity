@@ -1,5 +1,6 @@
 import { VStack } from "@chakra-ui/layout";
 import { Skeleton, SimpleGrid } from "@chakra-ui/react";
+import { getETHPrice } from "@libs/get-eth-price";
 
 import Header from "pages/header";
 import Profile from "pages/profile";
@@ -7,7 +8,7 @@ import Social from "pages/social";
 import { useEffect, useState } from "react";
 import axiosClient from "src/framework/axios";
 
-function App() {
+function App({ ETHPrice }: any) {
     const [userData, setUserData] = useState(null);
     useEffect(() => {
         const fetchUserData = async () => {
@@ -16,7 +17,6 @@ function App() {
         };
         fetchUserData();
     }, []);
-    console.log(userData);
     return (
         <div>
             <head>
@@ -25,7 +25,11 @@ function App() {
             <VStack p={5}>
                 {userData ? (
                     <>
-                        <Header allowUpdate={false} user={userData}></Header>
+                        <Header
+                            ETHPrice={ETHPrice}
+                            allowUpdate={false}
+                            user={userData}
+                        ></Header>
                         <Social user={userData}></Social>
                         <Profile user={userData}></Profile>
                     </>
@@ -45,3 +49,7 @@ function App() {
     );
 }
 export default App;
+export async function getServerSideProps({ req, res }: any) {
+    const ETHPrice = await getETHPrice();
+    return { props: { ETHPrice } };
+}
