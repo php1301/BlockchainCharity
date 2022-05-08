@@ -47,6 +47,7 @@ import {
     isSuccessfulTransaction,
     waitTransaction,
 } from "@libs/poll-confirmation";
+import { getCookie } from "cookies-next";
 //import web3 from "../../../../smart-contract/web3";
 //import Campaign from "../../../../smart-contract/campaign";
 
@@ -56,11 +57,11 @@ import {
 ////const campaign = Campaign(campaignId), /*web3.utils.fromWei(balance, "ether")*/,
 //
 
-export async function getServerSideProps({
-    params,
-}: {
-    params: { id: string };
-}) {
+export async function getServerSideProps({ params, req, res }: any) {
+    const cookie =
+        getCookie("base", { req, res })?.toString() ||
+        "http://localhost:3000/dev";
+    axiosClient.defaults.baseURL = cookie;
     const campaignId = params.id;
     const { requestsCount: requestCount }: { requestsCount: any } =
         await axiosClient.get(`/campaigns/get-requests-count/${campaignId}`);

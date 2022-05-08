@@ -34,13 +34,14 @@ import web3 from "@libs/web3";
 import { syncWallet } from "@libs/sync-wallet";
 import { getAuth } from "firebase/auth";
 import { firebaseClient } from "src/firebase";
+import { getCookie } from "cookies-next";
 
 //sửa useAsync, async function onSubmit,
-export async function getServerSideProps({
-    params,
-}: {
-    params: { id: string };
-}) {
+export async function getServerSideProps({ params, req, res }: any) {
+    const cookie =
+        getCookie("base", { req, res })?.toString() ||
+        "http://localhost:3000/dev";
+    axiosClient.defaults.baseURL = cookie;
     const campaignId = params.id;
     const { summary }: any = await axiosClient.get(
         `/campaigns/get-campaign-summary/${campaignId}`,

@@ -48,16 +48,17 @@ import web3 from "@libs/web3";
 import { useWallet } from "use-wallet";
 import { getAuth } from "firebase/auth";
 import { firebaseClient } from "src/firebase";
+import { getCookie } from "cookies-next";
 
 //import web3 from "../../smart-contract/web3";
 //import Campaign from "../../smart-contract/campaign";
 //Sua web3 "become a donnor", web3 "target of", web3 <Progress> form onsubmit, "Amount in Ether you want to contribute", button "contribute"
 
-export async function getServerSideProps({
-    params,
-}: {
-    params: { id: string };
-}) {
+export async function getServerSideProps({ params, req, res }: any) {
+    const cookie =
+        getCookie("base", { req, res })?.toString() ||
+        "http://localhost:3000/dev";
+    axiosClient.defaults.baseURL = cookie;
     const campaignId = params.id;
     const { summary }: any = await axiosClient.get(
         `/campaigns/get-campaign-summary/${campaignId}`,

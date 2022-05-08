@@ -33,8 +33,13 @@ import axiosClient from "src/framework/axios";
 import { getETHPrice, getWEIPriceInUSD } from "@libs/get-eth-price";
 import web3 from "@libs/web3";
 import { ComboBox } from "@components/comboBox";
+import { getCookie } from "cookies-next";
 
-export async function getServerSideProps() {
+export async function getServerSideProps({ req, res }: any) {
+    const cookie =
+        getCookie("base", { req, res })?.toString() ||
+        "http://localhost:3000/dev";
+    axiosClient.defaults.baseURL = cookie;
     const { sorted: deployedCampaigns }: any = await axiosClient.get(
         `/campaigns/get-deployed-campaigns/new`,
     );
