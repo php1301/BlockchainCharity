@@ -3,6 +3,8 @@ import { useColorMode } from "@chakra-ui/color-mode";
 import { Image } from "@chakra-ui/image";
 import { Stack, Circle, Flex, Box, Text } from "@chakra-ui/layout";
 import { useMediaQuery } from "@chakra-ui/media-query";
+import { SimpleGrid } from "@chakra-ui/react"
+import { StatCard } from "@components/statCard";
 import React from "react";
 import NextLink from "next/link";
 
@@ -20,9 +22,10 @@ function Header({
     //console.log("hihi")
     console.log(allowUpdate);
     console.log(isNotSmallerScreen);
+   
     return (
         <Stack
-            py={{ base: "4", md: "12" }}
+            py={{ base: "1", md: "12" }}
             maxW={"7xl"}
             width="100%"
             align={"left"}
@@ -37,7 +40,7 @@ function Header({
             />
             <Flex
                 direction={!isNotSmallerScreen ? "row" : "column"}
-                p={isNotSmallerScreen ? "32" : "0"}
+                p={isNotSmallerScreen ? "10" : "0"}
                 alignSelf="flex-start"
             >
                 <Box mt={isNotSmallerScreen ? "0" : 16} alignItems="flex-start">
@@ -59,6 +62,42 @@ function Header({
                         {user?.user?.bio ||
                             " Main responsibilities: Writing SRS for website, designing UI/UX for website, front-end coding"}
                     </Text>
+                    <Text color={isDark ? "gray.200" : "gray.500"}>
+                        Phone Number: {user?.user?.phone ||
+                            " Phone Number"}
+                    </Text>
+                    <Box 
+                        mx={"0"}
+                        my={5}
+                        w={"70%"}
+                    >     
+                        <SimpleGrid
+                            columns={{ base: 1 }}
+                            spacing={{ base: 5 }}
+                        >
+                            <StatCard
+                                title={"Number of Campaigns"}
+                                stat={"10"}
+                                info={
+                                    ""
+                                }
+                            />
+                            <StatCard
+                                title={"Total Donations"}
+                                stat={"10"}
+                                info={
+                                    ""
+                                }
+                            />
+                            <StatCard
+                                title={"Total requests finalized"}
+                                stat={"10"}
+                                info={
+                                    ""
+                                }
+                            />
+                        </SimpleGrid>
+                    </Box>
                     {allowUpdate && (
                         <Button mt={8} colorScheme="green">
                             <NextLink href="/editprofile">

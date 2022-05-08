@@ -126,7 +126,7 @@ export const NavBar: React.FC = () => {
                         flex={{ base: 1, md: 0 }}
                         justify={"flex-end"}
                         direction={"row"}
-                        spacing={6}
+                        spacing={{ base: "3", md: "6" }}
                         display={{ base: "flex", md: "flex" }}
                     >
                         {(wallet.status === "connected" || userAuth?.uid) && (
