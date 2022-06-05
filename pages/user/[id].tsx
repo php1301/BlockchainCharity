@@ -7,12 +7,17 @@ import Profile from "@components/profile";
 import Social from "@components/social";
 import { useEffect, useState } from "react";
 import axiosClient from "src/framework/axios";
+import { useRouter } from "next/router";
 
 function App({ ETHPrice }: any) {
     const [userData, setUserData] = useState(null);
+    const router = useRouter();
+    const { id } = router.query;
     useEffect(() => {
         const fetchUserData = async () => {
-            const { user }: any = await axiosClient.get("/users/get-profile");
+            const { user }: any = await axiosClient.get(
+                `users/view-profile/${id}`,
+            );
             setUserData(user);
         };
         fetchUserData();
