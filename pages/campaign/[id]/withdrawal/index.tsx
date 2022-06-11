@@ -68,9 +68,7 @@ export async function getServerSideProps({ params, req, res }: any) {
     const { approversCount }: { approversCount: any } = await axiosClient.get(
         `/campaigns/get-approvers-count/${campaignId}`,
     );
-    const { summary }: any = await axiosClient.get(
-        `/campaigns/get-campaign-summary/${campaignId}`,
-    );
+ 
     const ETHPrice = await getETHPrice();
 
     return {
@@ -78,8 +76,6 @@ export async function getServerSideProps({ params, req, res }: any) {
             campaignId,
             requestCount,
             approversCount,
-            balance: summary[1],
-            name: summary[5],
             ETHPrice,
         },
     };
@@ -356,12 +352,12 @@ interface withdrawalInfo {
 export default function Withdrawal({
     campaignId,
     requestCount,
-    balance,
-    name,
     ETHPrice,
     approversCount,
 }: withdrawalInfo) {
     const [requestsList, setRequestsList] = useState<any>([]);
+    const [balance, setBalance] = useState<any>(0);
+    const [name, setName] = useState<string>("");
     const [isLoading, setIsLoading] = useState(true);
     const [FundNotAvailable, setFundNotAvailable] = useState(false);
     const wallet = useWallet();
@@ -382,8 +378,15 @@ export default function Withdrawal({
             const { requests }: any = await axiosClient.get(
                 `/campaigns/get-campaign-requests/${campaignId}/1`,
             );
-
+            const { summary }: any = await axiosClient.get(
+                `/campaigns/get-campaign-summary/${campaignId}`,
+            );
             setRequestsList(requests);
+            setBalance(summary[1]);
+            setName(summary[5]);
+            if (summary[1] === 0) {
+                setFundNotAvailable(true);
+            }
             setIsLoading(false);
             return requests;
         } catch (e) {
@@ -392,10 +395,10 @@ export default function Withdrawal({
     }
 
     useEffect(() => {
-        if (balance === 0) {
-            setFundNotAvailable(true);
-        }
+   
         getRequests();
+      
+        
     }, []);
 
     return (

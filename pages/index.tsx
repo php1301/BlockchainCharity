@@ -264,7 +264,9 @@ export default function Home({ campaigns }: { campaigns: any }) {
         };
         providerCheck();
     }, []);
-
+    useEffect(() => {
+        getSummary();
+    }, []);
     useEffect(() => {
         getSummary();
     }, [campaignAddreses]);
