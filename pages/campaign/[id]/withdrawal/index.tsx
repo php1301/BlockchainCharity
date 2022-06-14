@@ -68,7 +68,7 @@ export async function getServerSideProps({ params, req, res }: any) {
     const { approversCount }: { approversCount: any } = await axiosClient.get(
         `/campaigns/get-approvers-count/${campaignId}`,
     );
- 
+
     const ETHPrice = await getETHPrice();
 
     return {
@@ -395,10 +395,7 @@ export default function Withdrawal({
     }
 
     useEffect(() => {
-   
         getRequests();
-      
-        
     }, []);
 
     return (
